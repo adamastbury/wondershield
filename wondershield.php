@@ -3,13 +3,13 @@
  * Plugin Name: WonderShield
  * Plugin URI: https://wondermedia.co.uk
  * Description: Security hardening and brute force protection by Wonder Media
- * Version: 1.0.3
+ * Version: 1.0.5
  * Author: Wonder Media Ltd
  * Author URI: https://wondermedia.co.uk
  * License: Proprietary
  */
 if (!defined('ABSPATH')) exit;
-define('WS_VERSION', '1.0.3');
+define('WS_VERSION', '1.0.5');
 define('WS_TABLE_LOG', $GLOBALS['wpdb']->prefix . 'wondershield_log');
 define('WS_TABLE_BLOCKS', $GLOBALS['wpdb']->prefix . 'wondershield_blocks');
 define('WS_MAX_ATTEMPTS', 5);
