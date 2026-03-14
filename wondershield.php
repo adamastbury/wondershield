@@ -520,90 +520,148 @@ function ws_render_page() {
         align-self: flex-start;
     }
     /* SECURITY LAYERS BANNER */
+    /* SECURITY PIPELINE */
     .ws-layers {
-        background: linear-gradient(135deg, #f8f7ff 0%, #f0eeff 100%);
-        border: 1px solid #e8e4ff;
+        background: linear-gradient(135deg, #0c0228 0%, #1a0448 60%, #0c0228 100%);
         border-radius: 16px;
-        padding: 18px 24px;
+        padding: 22px 24px 24px;
         margin: 24px 32px 0;
         overflow: hidden;
+        position: relative;
     }
-    .ws-layers-title {
+    .ws-layers::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(circle, rgba(255,255,255,0.022) 1px, transparent 1px);
+        background-size: 20px 20px;
+        pointer-events: none;
+    }
+    .ws-layers-eyebrow {
         font-family: 'Dosis', sans-serif;
-        font-size: 10px;
+        font-size: 9px;
         font-weight: 600;
-        letter-spacing: 0.14em;
+        letter-spacing: 0.22em;
         text-transform: uppercase;
-        color: #8b7fb8;
-        margin-bottom: 14px;
+        color: rgba(0,220,255,0.55);
         text-align: center;
+        margin-bottom: 4px;
+        position: relative;
     }
-    .ws-layers-flow {
+    .ws-layers-headline {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        color: rgba(255,255,255,0.55);
+        text-align: center;
+        margin-bottom: 20px;
+        letter-spacing: -0.01em;
+        position: relative;
+    }
+    .ws-pipeline {
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 0;
         flex-wrap: nowrap;
+        position: relative;
     }
-    .ws-pill {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        padding: 7px 13px;
-        border-radius: 50px;
-        font-family: 'Dosis', sans-serif;
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        white-space: nowrap;
-        flex-shrink: 0;
-    }
-    .ws-pill.internet { background: #eeedf6; color: #4a4070; }
-    .ws-pill.cf       { background: #fff0e6; color: #b85a0a; }
-    .ws-pill.server   { background: #ede8ff; color: #5c3fb0; }
-    .ws-pill.shield   { background: linear-gradient(135deg, #5600FF, #00DCFF); color: #fff; }
-    .ws-pill.site     { background: #e6fff4; color: #0a7a4a; }
-    .ws-connector {
+    .ws-pnode {
         display: flex;
         flex-direction: column;
         align-items: center;
         gap: 3px;
-        padding: 0 6px;
+        padding: 11px 13px;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.09);
+        flex-shrink: 0;
+        min-width: 76px;
+        text-align: center;
+        position: relative;
+    }
+    .ws-pnode-icon { font-size: 18px; line-height: 1; margin-bottom: 1px; }
+    .ws-pnode-name {
+        font-family: 'Dosis', sans-serif;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.65);
+        white-space: nowrap;
+    }
+    .ws-pnode-sub {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 9px;
+        color: rgba(255,255,255,0.28);
+        white-space: nowrap;
+    }
+    .ws-pnode-shield {
+        background: linear-gradient(135deg, #5600FF 0%, #3a00cc 100%);
+        border: 1px solid rgba(0,220,255,0.35);
+        box-shadow: 0 0 22px rgba(86,0,255,0.5), 0 0 44px rgba(0,220,255,0.13), inset 0 1px 0 rgba(255,255,255,0.12);
+        padding: 13px 16px;
+        min-width: 98px;
+        transform: scale(1.06);
+        animation: ws-shield-pulse 3s ease-in-out infinite;
+    }
+    .ws-pnode-shield .ws-pnode-name { color: #fff; font-size: 11px; }
+    .ws-pnode-shield .ws-pnode-sub  { color: rgba(255,255,255,0.55); }
+    .ws-pnode-badge {
+        font-family: 'Dosis', sans-serif;
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #00DCFF;
+        background: rgba(0,220,255,0.13);
+        border: 1px solid rgba(0,220,255,0.28);
+        border-radius: 20px;
+        padding: 2px 7px;
+        margin-top: 4px;
+        white-space: nowrap;
+    }
+    .ws-pnode-site {
+        background: rgba(0,180,90,0.1);
+        border-color: rgba(0,180,90,0.22);
+    }
+    .ws-pnode-site .ws-pnode-name { color: #00c87a; }
+    .ws-pconn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: 0 5px;
         flex-shrink: 0;
     }
-    .ws-threat-tag {
+    .ws-pconn-tag {
         font-family: 'Dosis', sans-serif;
-        font-size: 9px;
+        font-size: 8px;
         font-weight: 700;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.04em;
         text-transform: uppercase;
-        color: #cc0033;
-        background: #fff0f3;
-        border: 1px solid #ffc8d4;
-        border-radius: 50px;
-        padding: 2px 8px;
+        color: #ff5577;
+        background: rgba(255,85,119,0.1);
+        border: 1px solid rgba(255,85,119,0.22);
+        border-radius: 20px;
+        padding: 2px 7px;
         white-space: nowrap;
     }
-    .ws-pass-tag {
-        font-family: 'Dosis', sans-serif;
-        font-size: 9px;
-        font-weight: 700;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        color: #0a7a4a;
-        background: #e6fff4;
-        border: 1px solid #a3f0ce;
-        border-radius: 50px;
-        padding: 2px 8px;
-        white-space: nowrap;
+    .ws-pconn-tag.pass {
+        color: #00c87a;
+        background: rgba(0,200,100,0.1);
+        border-color: rgba(0,200,100,0.22);
     }
-    .ws-arrow-line {
+    .ws-pconn-arrow {
         font-size: 13px;
-        color: #c5bce8;
+        color: rgba(255,255,255,0.18);
         line-height: 1;
     }
-    .ws-arrow-line.pass { color: #00c87a; }
+    .ws-pconn-arrow.pass { color: rgba(0,200,100,0.45); }
+    @keyframes ws-shield-pulse {
+        0%, 100% { box-shadow: 0 0 22px rgba(86,0,255,0.5), 0 0 44px rgba(0,220,255,0.13), inset 0 1px 0 rgba(255,255,255,0.12); }
+        50%       { box-shadow: 0 0 30px rgba(86,0,255,0.7), 0 0 60px rgba(0,220,255,0.22), inset 0 1px 0 rgba(255,255,255,0.12); }
+    }
     /* BODY */
     .ws-body { padding: 24px 32px 32px; }
     .ws-notice {
@@ -840,29 +898,51 @@ function ws_render_page() {
         </div>
         <!-- SECURITY LAYERS BANNER -->
         <div class="ws-layers">
-            <div class="ws-layers-title">Your security layers — threats stopped before they reach your site</div>
-            <div class="ws-layers-flow">
-                <div class="ws-pill internet">🌐 Internet</div>
-                <div class="ws-connector">
-                    <div class="ws-threat-tag">Bots &amp; DDoS ✕</div>
-                    <div class="ws-arrow-line">→</div>
+            <div class="ws-layers-eyebrow">Defence in Depth</div>
+            <div class="ws-layers-headline">Your site is protected by 4 layers — WonderShield is the final line of defence</div>
+            <div class="ws-pipeline">
+                <div class="ws-pnode">
+                    <div class="ws-pnode-icon">🌐</div>
+                    <div class="ws-pnode-name">Internet</div>
+                    <div class="ws-pnode-sub">All Traffic</div>
                 </div>
-                <div class="ws-pill cf">☁️ Cloudflare</div>
-                <div class="ws-connector">
-                    <div class="ws-threat-tag">Attacks ✕</div>
-                    <div class="ws-arrow-line">→</div>
+                <div class="ws-pconn">
+                    <div class="ws-pconn-tag">Bots &amp; DDoS ✕</div>
+                    <div class="ws-pconn-arrow">→</div>
                 </div>
-                <div class="ws-pill server">🖥️ Server</div>
-                <div class="ws-connector">
-                    <div class="ws-threat-tag">Brute Force ✕</div>
-                    <div class="ws-arrow-line">→</div>
+                <div class="ws-pnode">
+                    <div class="ws-pnode-icon">☁️</div>
+                    <div class="ws-pnode-name">Cloudflare</div>
+                    <div class="ws-pnode-sub">Edge Shield</div>
                 </div>
-                <div class="ws-pill shield">🛡️ WonderShield</div>
-                <div class="ws-connector">
-                    <div class="ws-pass-tag">Trusted Users ✓</div>
-                    <div class="ws-arrow-line pass">→</div>
+                <div class="ws-pconn">
+                    <div class="ws-pconn-tag">Attacks ✕</div>
+                    <div class="ws-pconn-arrow">→</div>
                 </div>
-                <div class="ws-pill site">✅ Your Site</div>
+                <div class="ws-pnode">
+                    <div class="ws-pnode-icon">🖥️</div>
+                    <div class="ws-pnode-name">Web Server</div>
+                    <div class="ws-pnode-sub">Host Firewall</div>
+                </div>
+                <div class="ws-pconn">
+                    <div class="ws-pconn-tag">Brute Force ✕</div>
+                    <div class="ws-pconn-arrow">→</div>
+                </div>
+                <div class="ws-pnode ws-pnode-shield">
+                    <div class="ws-pnode-icon">🛡️</div>
+                    <div class="ws-pnode-name">WonderShield</div>
+                    <div class="ws-pnode-sub">Login Guard</div>
+                    <div class="ws-pnode-badge">Final Defence</div>
+                </div>
+                <div class="ws-pconn">
+                    <div class="ws-pconn-tag pass">Verified Only ✓</div>
+                    <div class="ws-pconn-arrow pass">→</div>
+                </div>
+                <div class="ws-pnode ws-pnode-site">
+                    <div class="ws-pnode-icon">✅</div>
+                    <div class="ws-pnode-name">Your Site</div>
+                    <div class="ws-pnode-sub">Protected</div>
+                </div>
             </div>
         </div>
         <div class="ws-body">
