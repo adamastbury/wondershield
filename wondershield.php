@@ -441,10 +441,10 @@ function ws_render_page() {
     }
     /* SECURITY LAYERS BANNER */
     .ws-layers {
-        background: #fff;
+        background: linear-gradient(135deg, #f8f7ff 0%, #f0eeff 100%);
         border: 1px solid #e8e4ff;
         border-radius: 16px;
-        padding: 24px 28px;
+        padding: 18px 24px;
         margin: 24px 32px 0;
         overflow: hidden;
     }
@@ -455,83 +455,75 @@ function ws_render_page() {
         letter-spacing: 0.14em;
         text-transform: uppercase;
         color: #8b7fb8;
-        margin-bottom: 18px;
+        margin-bottom: 14px;
+        text-align: center;
     }
     .ws-layers-flow {
         display: flex;
         align-items: center;
-        gap: 0;
-        flex-wrap: wrap;
-        row-gap: 12px;
-    }
-    .ws-layer-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-        flex: 1;
-        min-width: 120px;
-    }
-    .ws-layer-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 14px;
-        display: flex;
-        align-items: center;
         justify-content: center;
-        font-size: 20px;
+        gap: 0;
+        flex-wrap: nowrap;
+    }
+    .ws-pill {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 7px 13px;
+        border-radius: 50px;
+        font-family: 'Dosis', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        white-space: nowrap;
         flex-shrink: 0;
     }
-    .ws-layer-icon.internet { background: #f0f0f5; }
-    .ws-layer-icon.cf { background: #fff3e8; }
-    .ws-layer-icon.server { background: #f0eaff; }
-    .ws-layer-icon.site { background: #e6fff9; }
-    .ws-layer-label {
-        font-family: 'Dosis', sans-serif;
-        font-size: 10px;
-        font-weight: 600;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: #0f0230;
-        text-align: center;
-    }
-    .ws-layer-sub {
-        font-size: 11px;
-        color: #8b7fb8;
-        text-align: center;
-        line-height: 1.4;
-        max-width: 110px;
-    }
-    .ws-layer-arrow {
+    .ws-pill.internet { background: #eeedf6; color: #4a4070; }
+    .ws-pill.cf       { background: #fff0e6; color: #b85a0a; }
+    .ws-pill.server   { background: #ede8ff; color: #5c3fb0; }
+    .ws-pill.shield   { background: linear-gradient(135deg, #5600FF, #00DCFF); color: #fff; }
+    .ws-pill.site     { background: #e6fff4; color: #0a7a4a; }
+    .ws-connector {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 4px;
-        padding: 0 4px;
+        gap: 3px;
+        padding: 0 6px;
         flex-shrink: 0;
     }
-    .ws-layer-arrow svg { width: 20px; height: 20px; }
-    .ws-layer-blocked {
+    .ws-threat-tag {
         font-family: 'Dosis', sans-serif;
         font-size: 9px;
-        font-weight: 600;
-        letter-spacing: 0.08em;
+        font-weight: 700;
+        letter-spacing: 0.05em;
         text-transform: uppercase;
-        color: #ef4444;
-        text-align: center;
+        color: #cc0033;
+        background: #fff0f3;
+        border: 1px solid #ffc8d4;
+        border-radius: 50px;
+        padding: 2px 8px;
         white-space: nowrap;
     }
-    .ws-layer-tick {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #5600FF, #00DCFF);
-        flex-shrink: 0;
+    .ws-pass-tag {
+        font-family: 'Dosis', sans-serif;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: #0a7a4a;
+        background: #e6fff4;
+        border: 1px solid #a3f0ce;
+        border-radius: 50px;
+        padding: 2px 8px;
+        white-space: nowrap;
     }
-    .ws-layer-tick svg { width: 10px; height: 10px; }
+    .ws-arrow-line {
+        font-size: 13px;
+        color: #c5bce8;
+        line-height: 1;
+    }
+    .ws-arrow-line.pass { color: #00c87a; }
     /* BODY */
     .ws-body { padding: 24px 32px 32px; }
     .ws-notice {
@@ -770,56 +762,27 @@ function ws_render_page() {
         <div class="ws-layers">
             <div class="ws-layers-title">Your security layers — threats stopped before they reach your site</div>
             <div class="ws-layers-flow">
-                <!-- Internet -->
-                <div class="ws-layer-item">
-                    <div class="ws-layer-icon internet">🌐</div>
-                    <div class="ws-layer-label">Web Traffic</div>
-                    <div class="ws-layer-sub">All incoming requests</div>
+                <div class="ws-pill internet">🌐 Internet</div>
+                <div class="ws-connector">
+                    <div class="ws-threat-tag">Bots &amp; DDoS ✕</div>
+                    <div class="ws-arrow-line">→</div>
                 </div>
-                <!-- Arrow 1 - Cloudflare blocks -->
-                <div class="ws-layer-arrow">
-                    <svg viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 6l4 4-4 4" stroke="#e8e4ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    <div class="ws-layer-blocked">Bots &amp; DDoS<br>blocked ✕</div>
+                <div class="ws-pill cf">☁️ Cloudflare</div>
+                <div class="ws-connector">
+                    <div class="ws-threat-tag">Attacks ✕</div>
+                    <div class="ws-arrow-line">→</div>
                 </div>
-                <!-- Cloudflare -->
-                <div class="ws-layer-item">
-                    <div class="ws-layer-icon cf">☁️</div>
-                    <div class="ws-layer-label">Cloudflare</div>
-                    <div class="ws-layer-sub">CDN, WAF &amp; DDoS protection</div>
+                <div class="ws-pill server">🖥️ Server</div>
+                <div class="ws-connector">
+                    <div class="ws-threat-tag">Brute Force ✕</div>
+                    <div class="ws-arrow-line">→</div>
                 </div>
-                <!-- Arrow 2 - Server blocks -->
-                <div class="ws-layer-arrow">
-                    <svg viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 6l4 4-4 4" stroke="#e8e4ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    <div class="ws-layer-blocked">Scanners &amp;<br>exploits blocked ✕</div>
+                <div class="ws-pill shield">🛡️ WonderShield</div>
+                <div class="ws-connector">
+                    <div class="ws-pass-tag">Trusted Users ✓</div>
+                    <div class="ws-arrow-line pass">→</div>
                 </div>
-                <!-- Server -->
-                <div class="ws-layer-item">
-                    <div class="ws-layer-icon server">🖥️</div>
-                    <div class="ws-layer-label">Server Level</div>
-                    <div class="ws-layer-sub">Firewall &amp; nginx rules</div>
-                </div>
-                <!-- Arrow 3 - WonderShield blocks -->
-                <div class="ws-layer-arrow">
-                    <svg viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 6l4 4-4 4" stroke="#e8e4ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    <div class="ws-layer-blocked">Brute force<br>blocked ✕</div>
-                </div>
-                <!-- WonderShield / Site -->
-                <div class="ws-layer-item">
-                    <div class="ws-layer-icon site">🛡️</div>
-                    <div class="ws-layer-label">WonderShield</div>
-                    <div class="ws-layer-sub">Login protection &amp; monitoring</div>
-                </div>
-                <!-- Arrow 4 - Legitimate -->
-                <div class="ws-layer-arrow">
-                    <svg viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 6l4 4-4 4" stroke="#00DCFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    <div class="ws-layer-blocked" style="color:#0891b2;">Legitimate<br>users ✓</div>
-                </div>
-                <!-- Your Site -->
-                <div class="ws-layer-item">
-                    <div class="ws-layer-icon site" style="background:#e6fff9;">✅</div>
-                    <div class="ws-layer-label">Your Site</div>
-                    <div class="ws-layer-sub">Protected &amp; running smoothly</div>
-                </div>
+                <div class="ws-pill site">✅ Your Site</div>
             </div>
         </div>
         <div class="ws-body">
