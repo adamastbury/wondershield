@@ -2,11 +2,8 @@
 /**
  * WonderShield GitHub Updater
  *
- * Checks GitHub releases for plugin updates and serves them
+ * Checks the public GitHub repo for new releases and serves updates
  * through the standard WordPress update mechanism.
- *
- * Requires WONDERSHIELD_GITHUB_TOKEN to be defined in wp-config.php
- * for private repos.
  */
 if (!defined('ABSPATH')) exit;
 
@@ -32,10 +29,6 @@ class WonderShield_Updater {
         add_filter('upgrader_post_install', [$this, 'post_install'], 10, 3);
     }
 
-    private function get_token() {
-        return defined('WONDERSHIELD_GITHUB_TOKEN') ? WONDERSHIELD_GITHUB_TOKEN : '';
-    }
-
     private function fetch_github_release() {
         if ($this->github_response !== null) {
             return $this->github_response;
@@ -48,11 +41,6 @@ class WonderShield_Updater {
                 'User-Agent' => 'WonderShield/' . $this->version,
             ],
         ];
-
-        $token = $this->get_token();
-        if ($token) {
-            $args['headers']['Authorization'] = 'token ' . $token;
-        }
 
         $response = wp_remote_get($url, $args);
 
@@ -85,23 +73,13 @@ class WonderShield_Updater {
         if (!empty($release->assets)) {
             foreach ($release->assets as $asset) {
                 if (substr($asset->name, -4) === '.zip') {
-                    $url = $asset->url;
-                    $token = $this->get_token();
-                    if ($token) {
-                        $url = add_query_arg('access_token', $token, $asset->browser_download_url);
-                    }
                     return $asset->browser_download_url;
                 }
             }
         }
 
         // Fall back to the source zip
-        $url = $release->zipball_url;
-        $token = $this->get_token();
-        if ($token) {
-            $url = add_query_arg('access_token', $token, $url);
-        }
-        return $url;
+        return $release->zipball_url;
     }
 
     /**
