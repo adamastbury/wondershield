@@ -148,6 +148,86 @@ function ws_run_cleanup() {
     $wpdb->query("DELETE FROM " . WS_TABLE_BLOCKS . " WHERE expires_at < NOW() AND manual = 0");
 }
 // ============================================================
+// BLOCK PAGE
+// ============================================================
+function ws_block_response($message, $ip = null, $mins = null) {
+    $ip       = $ip ?: ws_get_ip();
+    $datetime = date('d M Y, H:i') . ' UTC';
+    $subline  = $mins
+        ? "Access will be restored in approximately <strong>{$mins} minute" . ($mins === 1 ? '' : 's') . "</strong>."
+        : "If you believe this is a mistake, please contact the site owner.";
+    echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Access Blocked — WonderShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Dosis:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;
+background:#07011a;font-family:"Dosis",sans-serif;overflow:hidden;position:relative;}
+body::before{content:"";position:fixed;inset:0;
+background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(86,0,255,0.18) 0%,transparent 70%),
+radial-gradient(ellipse 50% 40% at 80% 80%,rgba(0,220,255,0.08) 0%,transparent 60%);
+pointer-events:none;}
+.ws-card{position:relative;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+border-radius:24px;padding:48px 40px;max-width:480px;width:90%;text-align:center;
+backdrop-filter:blur(20px);box-shadow:0 0 80px rgba(86,0,255,0.15),0 24px 48px rgba(0,0,0,0.4);}
+.ws-shield{width:80px;height:80px;margin:0 auto 24px;
+background:linear-gradient(135deg,#5600FF,#00DCFF);
+border-radius:22px;display:flex;align-items:center;justify-content:center;
+box-shadow:0 0 40px rgba(86,0,255,0.5);}
+.ws-shield svg{width:44px;height:44px;}
+.ws-brand{font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;
+color:rgba(255,255,255,0.35);margin-bottom:20px;}
+.ws-title{font-size:22px;font-weight:800;color:#fff;letter-spacing:0.02em;margin-bottom:10px;}
+.ws-message{font-size:14px;color:rgba(255,255,255,0.5);line-height:1.6;margin-bottom:28px;}
+.ws-message strong{color:rgba(255,255,255,0.75);}
+.ws-pills{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;}
+.ws-info-pill{display:flex;align-items:center;gap:10px;
+background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);
+border-radius:50px;padding:8px 16px;font-size:12px;}
+.ws-info-pill .pill-icon{font-size:14px;flex-shrink:0;}
+.ws-info-pill .pill-label{color:rgba(255,255,255,0.3);font-size:10px;font-weight:700;
+letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;}
+.ws-info-pill .pill-value{color:rgba(255,255,255,0.7);font-weight:600;margin-left:auto;
+font-size:11px;letter-spacing:0.02em;}
+.ws-logged{display:inline-flex;align-items:center;gap:6px;
+font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+color:rgba(0,220,255,0.6);border:1px solid rgba(0,220,255,0.15);
+border-radius:50px;padding:5px 14px;}
+.ws-logged::before{content:"";width:6px;height:6px;border-radius:50%;
+background:#00DCFF;box-shadow:0 0 8px #00DCFF;flex-shrink:0;}
+</style></head><body>
+<div class="ws-card">
+    <div class="ws-shield">
+        <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22 4L6 10v12c0 9.5 6.8 18.4 16 20.6C31.2 40.4 38 31.5 38 22V10L22 4z"
+                fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+            <path d="M16 22l4 4 8-8" stroke="#fff" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </div>
+    <div class="ws-brand">WonderShield</div>
+    <div class="ws-title">Access Blocked</div>
+    <div class="ws-message">' . esc_html($message) . '<br><br>' . $subline . '</div>
+    <div class="ws-pills">
+        <div class="ws-info-pill">
+            <span class="pill-icon">🌐</span>
+            <span class="pill-label">IP Address</span>
+            <span class="pill-value">' . esc_html($ip) . '</span>
+        </div>
+        <div class="ws-info-pill">
+            <span class="pill-icon">🕐</span>
+            <span class="pill-label">Date &amp; Time</span>
+            <span class="pill-value">' . esc_html($datetime) . '</span>
+        </div>
+    </div>
+    <div class="ws-logged">This event has been logged</div>
+</div>
+</body></html>';
+    exit;
+}
+// ============================================================
 // PROTECTION: XML-RPC
 // ============================================================
 add_filter('xmlrpc_enabled', '__return_false');
@@ -156,7 +236,7 @@ add_action('init', function() {
         $ip = ws_get_ip();
         ws_log($ip, 'xmlrpc_blocked', $_SERVER['REQUEST_URI'], $_SERVER['HTTP_USER_AGENT'] ?? '');
         status_header(403);
-        die('Forbidden');
+        ws_block_response('XML-RPC access is disabled on this site.');
     }
 });
 // ============================================================
@@ -190,7 +270,7 @@ add_action('init', function() {
             $ip = ws_get_ip();
             ws_log($ip, 'bad_agent_blocked', $_SERVER['REQUEST_URI'] ?? '/', $_SERVER['HTTP_USER_AGENT'] ?? '');
             status_header(403);
-            die('Forbidden');
+            ws_block_response('Automated scanning tools are not permitted on this site.');
         }
     }
 });
@@ -209,14 +289,14 @@ add_action('init', function() {
         status_header(403);
         $expires = strtotime($block->expires_at);
         $mins = max(1, round(($expires - time()) / 60));
-        die("Access temporarily blocked by WonderShield. Try again in $mins minute(s).");
+        ws_block_response('Your IP has been temporarily blocked due to repeated failed login attempts.', $ip, $mins);
     }
     ws_log($ip, 'attempt', $uri, $_SERVER['HTTP_USER_AGENT'] ?? '');
     $attempts = ws_count_recent_attempts($ip, '%wp-login%', WS_ATTEMPT_WINDOW);
     if ($attempts >= WS_MAX_ATTEMPTS) {
         ws_block_ip($ip, 'wp-login brute force');
         status_header(429);
-        die("Too many login attempts. You have been temporarily blocked by WonderShield.");
+        ws_block_response('Too many failed login attempts. Your IP has been temporarily blocked.', $ip, (int)(WS_LOCKOUT_DURATION / 60));
     }
 }, 1);
 // wp-admin: runs later after auth cookies are set — skip logged-in users entirely
@@ -232,14 +312,14 @@ add_action('admin_init', function() {
         status_header(403);
         $expires = strtotime($block->expires_at);
         $mins = max(1, round(($expires - time()) / 60));
-        die("Access temporarily blocked by WonderShield. Try again in $mins minute(s).");
+        ws_block_response('Your IP has been temporarily blocked due to suspicious activity.', $ip, $mins);
     }
     ws_log($ip, 'attempt', $uri, $_SERVER['HTTP_USER_AGENT'] ?? '');
     $attempts = ws_count_recent_attempts($ip, '%wp-admin%', WS_ATTEMPT_WINDOW);
     if ($attempts >= (WS_MAX_ATTEMPTS * 3)) {
         ws_block_ip($ip, 'wp-admin flood');
         status_header(429);
-        die("Too many requests. You have been temporarily blocked by WonderShield.");
+        ws_block_response('Too many requests detected. Your IP has been temporarily blocked.', $ip, (int)(WS_LOCKOUT_DURATION / 60));
     }
 });
 // ============================================================
