@@ -16,6 +16,9 @@ class WonderShield_Updater {
     private $version;
     private $github_response;
 
+    const CACHE_KEY = 'wondershield_github_release';
+    const CACHE_TTL = 6 * HOUR_IN_SECONDS;
+
     public function __construct($plugin_file) {
         $this->plugin_file     = $plugin_file;
         $this->plugin_slug     = dirname(plugin_basename($plugin_file));
@@ -24,7 +27,10 @@ class WonderShield_Updater {
     }
 
     public function init() {
+        // Fires when WP does a fresh update check (saves new transient)
         add_filter('pre_set_site_transient_update_plugins', [$this, 'check_update']);
+        // Fires on every read of the cached transient — ensures update shows immediately
+        add_filter('site_transient_update_plugins', [$this, 'check_update']);
         add_filter('plugins_api', [$this, 'plugin_info'], 10, 3);
         add_filter('upgrader_post_install', [$this, 'post_install'], 10, 3);
     }
@@ -32,6 +38,13 @@ class WonderShield_Updater {
     private function fetch_github_release() {
         if ($this->github_response !== null) {
             return $this->github_response;
+        }
+
+        // Use our own persistent cache to avoid hitting GitHub on every page load
+        $cached = get_site_transient(self::CACHE_KEY);
+        if ($cached !== false) {
+            $this->github_response = $cached;
+            return $cached;
         }
 
         $url  = "https://api.github.com/repos/{$this->repo}/releases/latest";
@@ -55,6 +68,7 @@ class WonderShield_Updater {
             return false;
         }
 
+        set_site_transient(self::CACHE_KEY, $body, self::CACHE_TTL);
         $this->github_response = $body;
         return $body;
     }
@@ -69,7 +83,6 @@ class WonderShield_Updater {
         $release = $this->fetch_github_release();
         if (!$release) return '';
 
-        // Prefer a .zip asset attached to the release
         if (!empty($release->assets)) {
             foreach ($release->assets as $asset) {
                 if (substr($asset->name, -4) === '.zip') {
@@ -78,12 +91,12 @@ class WonderShield_Updater {
             }
         }
 
-        // Fall back to the source zip
         return $release->zipball_url;
     }
 
     /**
      * Hook into WordPress update check.
+     * Hooked to both pre_set and get transient filters so it works with cached reads too.
      */
     public function check_update($transient) {
         if (empty($transient->checked)) return $transient;
@@ -91,14 +104,26 @@ class WonderShield_Updater {
         $remote_version = $this->get_remote_version();
         if (!$remote_version) return $transient;
 
+        $item = (object) [
+            'id'           => $this->plugin_basename,
+            'slug'         => $this->plugin_slug,
+            'plugin'       => $this->plugin_basename,
+            'new_version'  => $remote_version,
+            'url'          => "https://github.com/{$this->repo}",
+            'package'      => $this->get_download_url(),
+            'icons'        => [],
+            'banners'      => [],
+            'requires'     => '5.6',
+            'tested'       => '6.7',
+            'requires_php' => '7.4',
+        ];
+
         if (version_compare($remote_version, $this->version, '>')) {
-            $transient->response[$this->plugin_basename] = (object) [
-                'slug'        => $this->plugin_slug,
-                'plugin'      => $this->plugin_basename,
-                'new_version' => $remote_version,
-                'url'         => "https://github.com/{$this->repo}",
-                'package'     => $this->get_download_url(),
-            ];
+            $transient->response[$this->plugin_basename] = $item;
+            unset($transient->no_update[$this->plugin_basename]);
+        } else {
+            $transient->no_update[$this->plugin_basename] = $item;
+            unset($transient->response[$this->plugin_basename]);
         }
 
         return $transient;
@@ -127,8 +152,8 @@ class WonderShield_Updater {
             'requires_php'  => '7.4',
             'download_link' => $this->get_download_url(),
             'sections'      => [
-                'description'  => 'Security hardening and brute force protection by Wonder Media.',
-                'changelog'    => nl2br(esc_html($release->body ?? 'No changelog provided.')),
+                'description' => 'Security hardening and brute force protection by Wonder Media.',
+                'changelog'   => nl2br(esc_html($release->body ?? 'No changelog provided.')),
             ],
         ];
     }
