@@ -19,6 +19,12 @@ define('WS_LOG_MAX_ROWS', 1000);
 define('WS_LOG_MAX_DAYS', 30);
 define('WS_NOTIFY_EMAIL', 'hello@wondermedia.co.uk');
 // ============================================================
+// GITHUB AUTO-UPDATER
+// ============================================================
+require_once __DIR__ . '/includes/class-updater.php';
+$ws_updater = new WonderShield_Updater(__FILE__);
+$ws_updater->init();
+// ============================================================
 // ACTIVATION / DEACTIVATION
 // ============================================================
 register_activation_hook(__FILE__, 'ws_activate');
