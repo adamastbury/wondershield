@@ -3,14 +3,14 @@
  * Plugin Name: WonderShield
  * Plugin URI: https://wondermedia.co.uk
  * Description: Security hardening and brute force protection by Wonder Media
- * Version: 1.2.1
+ * Version: 1.2.2
  * Author: Wonder Media Ltd
  * Author URI: https://wondermedia.co.uk
  * License: Proprietary
  */
 if (!defined('ABSPATH')) exit;
 
-define('WS_VERSION',         '1.2.1');
+define('WS_VERSION',         '1.2.2');
 define('WS_PLUGIN_DIR',      plugin_dir_path(__FILE__));
 define('WS_TABLE_LOG',       $GLOBALS['wpdb']->prefix . 'wondershield_log');
 define('WS_TABLE_BLOCKS',    $GLOBALS['wpdb']->prefix . 'wondershield_blocks');
@@ -33,11 +33,11 @@ $ws_updater->init();
 register_activation_hook(__FILE__,   'ws_activate');
 register_deactivation_hook(__FILE__, 'ws_deactivate');
 
-// Auto-create tables if missing — checks actual table existence via SHOW TABLES,
-// not an option flag, so a failed CREATE is never silently skipped on future loads.
+// Auto-create blocks table if missing — checks actual table existence via SHOW TABLES.
 // delete_option clears any stuck flag from a previous bad deploy.
 delete_option( 'ws_blocks_table_ver' );
 global $wpdb;
+$GLOBALS['ws_create_error'] = 'table_exists';
 if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', WS_TABLE_BLOCKS ) ) !== WS_TABLE_BLOCKS ) {
     $wpdb->query(
         "CREATE TABLE IF NOT EXISTS " . WS_TABLE_BLOCKS . " (
@@ -52,4 +52,5 @@ if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', WS_TABLE_BLOCKS ) ) 
             KEY idx_expires (expires_at)
         ) " . $wpdb->get_charset_collate()
     );
+    $GLOBALS['ws_create_error'] = $wpdb->last_error ?: 'none';
 }
