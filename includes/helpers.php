@@ -8,26 +8,26 @@ function ws_activate() {
     global $wpdb;
     $charset = $wpdb->get_charset_collate();
     $sql1 = "CREATE TABLE IF NOT EXISTS " . WS_TABLE_LOG . " (
-        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-        event_type VARCHAR(30) NOT NULL,
-        ip VARCHAR(45) NOT NULL,
-        path VARCHAR(255) NOT NULL,
-        user_agent TEXT,
-        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY (id),
-        KEY idx_ip (ip),
-        KEY idx_created (created_at)
+        `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+        `event_type` VARCHAR(30) NOT NULL,
+        `ip` VARCHAR(45) NOT NULL,
+        `path` VARCHAR(255) NOT NULL,
+        `user_agent` TEXT,
+        `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (`id`),
+        KEY idx_ip (`ip`),
+        KEY idx_created (`created_at`)
     ) $charset;";
     $sql2 = "CREATE TABLE IF NOT EXISTS " . WS_TABLE_BLOCKS . " (
-        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-        ip VARCHAR(45) NOT NULL,
-        reason VARCHAR(100) NOT NULL,
-        blocked_at DATETIME NOT NULL,
-        expires_at DATETIME NOT NULL,
+        `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+        `ip` VARCHAR(45) NOT NULL,
+        `reason` VARCHAR(100) NOT NULL,
+        `blocked_at` DATETIME NOT NULL,
+        `expires_at` DATETIME NOT NULL,
         `manual` TINYINT(1) NOT NULL DEFAULT 0,
-        PRIMARY KEY (id),
-        UNIQUE KEY idx_ip (ip),
-        KEY idx_expires (expires_at)
+        PRIMARY KEY (`id`),
+        UNIQUE KEY idx_ip (`ip`),
+        KEY idx_expires (`expires_at`)
     ) $charset;";
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql1);

@@ -41,15 +41,15 @@ if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', WS_TABLE_BLOCKS ) ) 
     $wpdb->show_errors();
     $result = $wpdb->query(
         "CREATE TABLE IF NOT EXISTS " . WS_TABLE_BLOCKS . " (
-            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-            ip VARCHAR(45) NOT NULL,
-            reason VARCHAR(100) NOT NULL,
-            blocked_at DATETIME NOT NULL,
-            expires_at DATETIME NOT NULL,
+            `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            `ip` VARCHAR(45) NOT NULL,
+            `reason` VARCHAR(100) NOT NULL,
+            `blocked_at` DATETIME NOT NULL,
+            `expires_at` DATETIME NOT NULL,
             `manual` TINYINT(1) NOT NULL DEFAULT 0,
-            PRIMARY KEY (id),
-            UNIQUE KEY idx_ip (ip),
-            KEY idx_expires (expires_at)
+            PRIMARY KEY (`id`),
+            UNIQUE KEY idx_ip (`ip`),
+            KEY idx_expires (`expires_at`)
         ) " . $wpdb->get_charset_collate()
     );
     $create_err   = $wpdb->last_error;
