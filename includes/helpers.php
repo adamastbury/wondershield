@@ -143,20 +143,35 @@ function ws_count_recent_events($ip, $event_type, $window_seconds) {
 // BLOCK RESPONSE PAGE
 // ============================================================
 function ws_block_response($message, $ip = null, $secs = null) {
+    global $wpdb;
     $ip = $ip ?: ws_get_ip();
-    // Always query the DB for the actual expiry so the timer reflects true
-    // remaining time — not the WS_LOCKOUT_DURATION constant passed at block time.
     $expires_ts = 0;
+
+    // Primary: check active (non-expired) block
     $block = ws_is_blocked($ip);
-    if ($block) {
-        $expires_ts = (new DateTime($block->expires_at, new DateTimeZone('UTC')))->getTimestamp();
-        $secs = max(0, $expires_ts - time());
+
+    // Fallback: query without the expires filter in case of timezone mismatch
+    if ( ! $block ) {
+        $block = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM " . WS_TABLE_BLOCKS . " WHERE ip = %s ORDER BY expires_at DESC LIMIT 1",
+            $ip
+        ) );
+    }
+
+    // Debug data for HTML comment
+    $debug_table_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM " . WS_TABLE_BLOCKS );
+    $debug_last_error  = $wpdb->last_error;
+
+    if ( $block ) {
+        $expires_ts = strtotime( $block->expires_at . ' UTC' );
+        $secs       = max( 0, $expires_ts - time() );
     } else {
-        $secs = max(0, (int)($secs ?: 0));
-        if ($secs > 0) {
+        $secs = max( 0, (int)( $secs ?: 0 ) );
+        if ( $secs > 0 ) {
             $expires_ts = time() + $secs;
         }
     }
+
     include WS_PLUGIN_DIR . 'templates/block-page.php';
     exit;
 }

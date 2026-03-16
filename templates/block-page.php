@@ -327,7 +327,7 @@ h1 {
 </div>
 
 <?php if ($expires_ts > 0): ?>
-<!-- ws-debug ip="<?php echo esc_html($ip); ?>" expires_ts="<?php echo $expires_ts; ?>" server_time="<?php echo time(); ?>" remaining="<?php echo ($expires_ts - time()); ?>" expires_at_raw="<?php echo esc_html($block->expires_at ?? 'n/a'); ?>" block_found="<?php echo isset($block) && $block ? 'yes' : 'no'; ?>" -->
+<!-- ws-debug ip="<?php echo esc_html($ip); ?>" expires_ts="<?php echo $expires_ts; ?>" server_time="<?php echo time(); ?>" remaining="<?php echo ($expires_ts - time()); ?>" expires_at_raw="<?php echo esc_html($block->expires_at ?? 'n/a'); ?>" block_found="<?php echo isset($block) && $block ? 'yes' : 'no'; ?>" blocks_table_count="<?php echo $debug_table_count; ?>" db_error="<?php echo esc_html($debug_last_error ?: 'none'); ?>" -->
 <script>
 (function() {
     var expiresAt = <?php echo (int) $expires_ts; ?>;
