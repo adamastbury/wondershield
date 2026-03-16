@@ -180,6 +180,7 @@ add_action('admin_init', function() {
 add_action('wp_login_failed', function($username) {
     $ip = ws_get_ip();
     ws_log($ip, 'login_failed', '/wp-login.php', $_SERVER['HTTP_USER_AGENT'] ?? '');
+    if (ws_is_blocked($ip)) return;
     $attempts = ws_count_recent_attempts($ip, '%wp-login%', WS_ATTEMPT_WINDOW);
     if ($attempts >= WS_MAX_ATTEMPTS) {
         ws_block_ip($ip, 'failed login threshold');

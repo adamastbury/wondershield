@@ -85,6 +85,9 @@ function ws_is_blocked($ip) {
 }
 function ws_block_ip($ip, $reason = 'brute_force', $manual = 0) {
     global $wpdb;
+    // Don't overwrite an existing unexpired block — preserves the original expires_at
+    // so the countdown timer reflects actual remaining time rather than resetting to 30 min.
+    if (!$manual && ws_is_blocked($ip)) return;
     // Store all times as UTC so ws_is_blocked comparisons are always consistent
     $expires = gmdate('Y-m-d H:i:s', time() + WS_LOCKOUT_DURATION);
     $wpdb->replace(WS_TABLE_BLOCKS, [
