@@ -98,7 +98,7 @@ function ws_block_ip($ip, $reason = 'brute_force', $manual = 0) {
         'manual'     => $manual,
     ], ['%s','%s','%s','%s','%d']);
     ws_log($ip, 'blocked', $_SERVER['REQUEST_URI'] ?? '/', $_SERVER['HTTP_USER_AGENT'] ?? '');
-    ws_send_notification($ip, $reason);
+    // ws_send_notification($ip, $reason);
 }
 function ws_log($ip, $event_type, $path, $user_agent = '') {
     global $wpdb;

@@ -3,14 +3,14 @@
  * Plugin Name: WonderShield
  * Plugin URI: https://wondermedia.co.uk
  * Description: Security hardening and brute force protection by Wonder Media
- * Version: 1.1.8
+ * Version: 1.1.9
  * Author: Wonder Media Ltd
  * Author URI: https://wondermedia.co.uk
  * License: Proprietary
  */
 if (!defined('ABSPATH')) exit;
 
-define('WS_VERSION',         '1.1.8');
+define('WS_VERSION',         '1.1.9');
 define('WS_PLUGIN_DIR',      plugin_dir_path(__FILE__));
 define('WS_TABLE_LOG',       $GLOBALS['wpdb']->prefix . 'wondershield_log');
 define('WS_TABLE_BLOCKS',    $GLOBALS['wpdb']->prefix . 'wondershield_blocks');
@@ -32,3 +32,11 @@ $ws_updater->init();
 
 register_activation_hook(__FILE__,   'ws_activate');
 register_deactivation_hook(__FILE__, 'ws_deactivate');
+
+// Auto-create tables if missing (activation hook doesn't run on auto-updates)
+add_action('plugins_loaded', function() {
+    global $wpdb;
+    if ( $wpdb->get_var( "SHOW TABLES LIKE '" . WS_TABLE_BLOCKS . "'" ) !== WS_TABLE_BLOCKS ) {
+        ws_activate();
+    }
+});
