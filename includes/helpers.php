@@ -24,7 +24,7 @@ function ws_activate() {
         reason VARCHAR(100) NOT NULL,
         blocked_at DATETIME NOT NULL,
         expires_at DATETIME NOT NULL,
-        manual TINYINT(1) NOT NULL DEFAULT 0,
+        `manual` TINYINT(1) NOT NULL DEFAULT 0,
         PRIMARY KEY (id),
         UNIQUE KEY idx_ip (ip),
         KEY idx_expires (expires_at)
@@ -57,7 +57,7 @@ function ws_run_cleanup() {
             $wpdb->query("DELETE FROM " . WS_TABLE_LOG . " WHERE id < $keep_id");
         }
     }
-    $wpdb->query("DELETE FROM " . WS_TABLE_BLOCKS . " WHERE expires_at < NOW() AND manual = 0");
+    $wpdb->query("DELETE FROM " . WS_TABLE_BLOCKS . " WHERE expires_at < NOW() AND `manual` = 0");
 }
 
 // ============================================================

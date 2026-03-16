@@ -3,14 +3,14 @@
  * Plugin Name: WonderShield
  * Plugin URI: https://wondermedia.co.uk
  * Description: Security hardening and brute force protection by Wonder Media
- * Version: 1.2.3
+ * Version: 1.2.4
  * Author: Wonder Media Ltd
  * Author URI: https://wondermedia.co.uk
  * License: Proprietary
  */
 if (!defined('ABSPATH')) exit;
 
-define('WS_VERSION',         '1.2.3');
+define('WS_VERSION',         '1.2.4');
 define('WS_PLUGIN_DIR',      plugin_dir_path(__FILE__));
 define('WS_TABLE_LOG',       $GLOBALS['wpdb']->prefix . 'wondershield_log');
 define('WS_TABLE_BLOCKS',    $GLOBALS['wpdb']->prefix . 'wondershield_blocks');
@@ -46,7 +46,7 @@ if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', WS_TABLE_BLOCKS ) ) 
             reason VARCHAR(100) NOT NULL,
             blocked_at DATETIME NOT NULL,
             expires_at DATETIME NOT NULL,
-            manual TINYINT(1) NOT NULL DEFAULT 0,
+            `manual` TINYINT(1) NOT NULL DEFAULT 0,
             PRIMARY KEY (id),
             UNIQUE KEY idx_ip (ip),
             KEY idx_expires (expires_at)
