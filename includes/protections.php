@@ -12,11 +12,10 @@ add_action('init', function() {
     $ip    = ws_get_ip();
     $block = ws_is_blocked($ip);
     if (!$block) return;
-    $expires = strtotime($block->expires_at);
-    $mins    = max(1, round(($expires - time()) / 60));
+    $secs = max(0, strtotime($block->expires_at) - time());
     ws_log($ip, 'blocked_hit', $_SERVER['REQUEST_URI'] ?? '/', $_SERVER['HTTP_USER_AGENT'] ?? '');
     status_header(403);
-    ws_block_response('Your IP has been temporarily blocked due to suspicious activity.', $ip, $mins);
+    ws_block_response('Your IP has been temporarily blocked due to suspicious activity.', $ip, $secs);
 }, 1);
 
 // ============================================================
@@ -117,16 +116,15 @@ add_action('init', function() {
     if ($block) {
         ws_log($ip, 'blocked_hit', $_SERVER['REQUEST_URI'] ?? '/', $_SERVER['HTTP_USER_AGENT'] ?? '');
         status_header(403);
-        $expires = strtotime($block->expires_at);
-        $mins = max(1, round(($expires - time()) / 60));
-        ws_block_response('Your IP has been temporarily blocked due to suspicious activity.', $ip, $mins);
+        $secs = max(0, strtotime($block->expires_at) - time());
+        ws_block_response('Your IP has been temporarily blocked due to suspicious activity.', $ip, $secs);
     }
     ws_log($ip, 'probe_blocked', $_SERVER['REQUEST_URI'] ?? '/', $_SERVER['HTTP_USER_AGENT'] ?? '');
     $probes = ws_count_recent_events($ip, 'probe_blocked', WS_ATTEMPT_WINDOW);
     if ($probes >= WS_PROBE_THRESHOLD) {
         ws_block_ip($ip, 'path probe scanner');
         status_header(403);
-        ws_block_response('Your IP has been temporarily blocked due to suspicious activity.', $ip, (int)(WS_LOCKOUT_DURATION / 60));
+        ws_block_response('Your IP has been temporarily blocked due to suspicious activity.', $ip, WS_LOCKOUT_DURATION);
     }
     status_header(404);
     exit;
@@ -144,16 +142,15 @@ add_action('init', function() {
     if ($block) {
         ws_log($ip, 'blocked_hit', $uri, $_SERVER['HTTP_USER_AGENT'] ?? '');
         status_header(403);
-        $expires = strtotime($block->expires_at);
-        $mins = max(1, round(($expires - time()) / 60));
-        ws_block_response('Your IP has been temporarily blocked due to repeated failed login attempts.', $ip, $mins);
+        $secs = max(0, strtotime($block->expires_at) - time());
+        ws_block_response('Your IP has been temporarily blocked due to repeated failed login attempts.', $ip, $secs);
     }
     ws_log($ip, 'attempt', $uri, $_SERVER['HTTP_USER_AGENT'] ?? '');
     $attempts = ws_count_recent_attempts($ip, '%wp-login%', WS_ATTEMPT_WINDOW);
     if ($attempts >= WS_MAX_ATTEMPTS) {
         ws_block_ip($ip, 'wp-login brute force');
         status_header(429);
-        ws_block_response('Too many failed login attempts. Your IP has been temporarily blocked.', $ip, (int)(WS_LOCKOUT_DURATION / 60));
+        ws_block_response('Too many failed login attempts. Your IP has been temporarily blocked.', $ip, WS_LOCKOUT_DURATION);
     }
 }, 1);
 // wp-admin: skip logged-in users entirely
@@ -165,16 +162,15 @@ add_action('admin_init', function() {
     if ($block) {
         ws_log($ip, 'blocked_hit', $uri, $_SERVER['HTTP_USER_AGENT'] ?? '');
         status_header(403);
-        $expires = strtotime($block->expires_at);
-        $mins = max(1, round(($expires - time()) / 60));
-        ws_block_response('Your IP has been temporarily blocked due to suspicious activity.', $ip, $mins);
+        $secs = max(0, strtotime($block->expires_at) - time());
+        ws_block_response('Your IP has been temporarily blocked due to suspicious activity.', $ip, $secs);
     }
     ws_log($ip, 'attempt', $uri, $_SERVER['HTTP_USER_AGENT'] ?? '');
     $attempts = ws_count_recent_attempts($ip, '%wp-admin%', WS_ATTEMPT_WINDOW);
     if ($attempts >= (WS_MAX_ATTEMPTS * 3)) {
         ws_block_ip($ip, 'wp-admin flood');
         status_header(429);
-        ws_block_response('Too many requests detected. Your IP has been temporarily blocked.', $ip, (int)(WS_LOCKOUT_DURATION / 60));
+        ws_block_response('Too many requests detected. Your IP has been temporarily blocked.', $ip, WS_LOCKOUT_DURATION);
     }
 });
 

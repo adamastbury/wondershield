@@ -312,7 +312,7 @@ h1 {
         </div>
     </div>
 
-    <?php if ($mins > 0): ?>
+    <?php if ($secs > 0): ?>
     <div class="countdown-wrap">
         <div class="countdown-label">Access restores in</div>
         <div class="countdown-timer" id="ws-countdown">--:--</div>
@@ -326,10 +326,10 @@ h1 {
 
 </div>
 
-<?php if ($mins > 0): ?>
+<?php if ($secs > 0): ?>
 <script>
 (function() {
-    var secs = <?php echo (int)$mins * 60; ?>;
+    var secs = <?php echo $secs; ?>;
     var el  = document.getElementById('ws-countdown');
     var sub = document.getElementById('ws-countdown-sub');
     function tick() {

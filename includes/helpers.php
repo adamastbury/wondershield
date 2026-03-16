@@ -136,9 +136,9 @@ function ws_count_recent_events($ip, $event_type, $window_seconds) {
 // ============================================================
 // BLOCK RESPONSE PAGE
 // ============================================================
-function ws_block_response($message, $ip = null, $mins = null) {
+function ws_block_response($message, $ip = null, $secs = null) {
     $ip   = $ip   ?: ws_get_ip();
-    $mins = (int) ($mins ?: 0);
+    $secs = max(0, (int)($secs ?: 0));
     include WS_PLUGIN_DIR . 'templates/block-page.php';
     exit;
 }
