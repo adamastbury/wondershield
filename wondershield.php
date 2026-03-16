@@ -3,14 +3,14 @@
  * Plugin Name: WonderShield
  * Plugin URI: https://wondermedia.co.uk
  * Description: Security hardening and brute force protection by Wonder Media
- * Version: 1.1.9
+ * Version: 1.2.0
  * Author: Wonder Media Ltd
  * Author URI: https://wondermedia.co.uk
  * License: Proprietary
  */
 if (!defined('ABSPATH')) exit;
 
-define('WS_VERSION',         '1.1.9');
+define('WS_VERSION',         '1.2.0');
 define('WS_PLUGIN_DIR',      plugin_dir_path(__FILE__));
 define('WS_TABLE_LOG',       $GLOBALS['wpdb']->prefix . 'wondershield_log');
 define('WS_TABLE_BLOCKS',    $GLOBALS['wpdb']->prefix . 'wondershield_blocks');
@@ -33,10 +33,22 @@ $ws_updater->init();
 register_activation_hook(__FILE__,   'ws_activate');
 register_deactivation_hook(__FILE__, 'ws_deactivate');
 
-// Auto-create tables if missing (activation hook doesn't run on auto-updates)
-add_action('plugins_loaded', function() {
+// Auto-create tables if missing — runs inline on every load, no hooks or dbDelta needed.
+// Checks an option flag so it only executes the CREATE once, not on every request.
+if ( get_option( 'ws_blocks_table_ver' ) !== '1' ) {
     global $wpdb;
-    if ( $wpdb->get_var( "SHOW TABLES LIKE '" . WS_TABLE_BLOCKS . "'" ) !== WS_TABLE_BLOCKS ) {
-        ws_activate();
-    }
-});
+    $wpdb->query(
+        "CREATE TABLE IF NOT EXISTS " . WS_TABLE_BLOCKS . " (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            ip VARCHAR(45) NOT NULL,
+            reason VARCHAR(100) NOT NULL,
+            blocked_at DATETIME NOT NULL,
+            expires_at DATETIME NOT NULL,
+            manual TINYINT(1) NOT NULL DEFAULT 0,
+            PRIMARY KEY (id),
+            UNIQUE KEY idx_ip (ip),
+            KEY idx_expires (expires_at)
+        ) " . $GLOBALS['wpdb']->get_charset_collate()
+    );
+    update_option( 'ws_blocks_table_ver', '1' );
+}
