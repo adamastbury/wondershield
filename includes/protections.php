@@ -2,6 +2,24 @@
 if (!defined('ABSPATH')) exit;
 
 // ============================================================
+// GLOBAL: BLOCKED IP GATE
+// ============================================================
+// Runs on every single request. If the IP is in the blocks table,
+// serve the block page immediately — regardless of what URL they hit.
+// Skips logged-in users so admins can still access the site to manage blocks.
+add_action('init', function() {
+    if (is_user_logged_in()) return;
+    $ip    = ws_get_ip();
+    $block = ws_is_blocked($ip);
+    if (!$block) return;
+    $expires = strtotime($block->expires_at);
+    $mins    = max(1, round(($expires - time()) / 60));
+    ws_log($ip, 'blocked_hit', $_SERVER['REQUEST_URI'] ?? '/', $_SERVER['HTTP_USER_AGENT'] ?? '');
+    status_header(403);
+    ws_block_response('Your IP has been temporarily blocked due to suspicious activity.', $ip, $mins);
+}, 1);
+
+// ============================================================
 // PROTECTION: XML-RPC
 // ============================================================
 add_filter('xmlrpc_enabled', '__return_false');

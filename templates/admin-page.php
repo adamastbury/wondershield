@@ -59,9 +59,9 @@
 }
 /* SECURITY PIPELINE */
 .ws-layers {
-    background: linear-gradient(135deg, #0c0228 0%, #1a0448 60%, #0c0228 100%);
+    background: linear-gradient(135deg, #0a0120 0%, #170340 55%, #0a0120 100%);
     border-radius: 16px;
-    padding: 22px 24px 24px;
+    padding: 28px 32px 32px;
     margin: 24px 32px 0;
     overflow: hidden;
     position: relative;
@@ -70,130 +70,166 @@
     content: '';
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(circle, rgba(255,255,255,0.022) 1px, transparent 1px);
-    background-size: 20px 20px;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.018) 1px, transparent 1px);
+    background-size: 28px 28px;
     pointer-events: none;
+}
+/* Subtle ambient glow behind WonderShield */
+.ws-layers::after {
+    content: '';
+    position: absolute;
+    width: 320px; height: 180px;
+    background: radial-gradient(ellipse, rgba(86,0,255,0.18) 0%, transparent 70%);
+    top: 50%; right: 24%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    filter: blur(24px);
 }
 .ws-layers-eyebrow {
     font-family: 'Dosis', sans-serif;
     font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 0.22em;
+    font-weight: 700;
+    letter-spacing: 0.26em;
     text-transform: uppercase;
-    color: rgba(0,220,255,0.55);
+    color: rgba(0,220,255,0.45);
     text-align: center;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
     position: relative;
 }
 .ws-layers-headline {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.55);
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.38);
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 28px;
     letter-spacing: -0.01em;
     position: relative;
 }
 .ws-pipeline {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 0;
-    flex-wrap: nowrap;
     position: relative;
 }
+/* Standard node */
 .ws-pnode {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3px;
-    padding: 11px 13px;
-    border-radius: 12px;
-    background: rgba(255,255,255,0.06);
+    gap: 7px;
+    padding: 16px 20px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.055);
     border: 1px solid rgba(255,255,255,0.09);
     flex-shrink: 0;
-    min-width: 76px;
+    min-width: 90px;
     text-align: center;
     position: relative;
+    z-index: 1;
 }
-.ws-pnode-icon { font-size: 18px; line-height: 1; margin-bottom: 1px; }
+.ws-pnode-icon { font-size: 24px; line-height: 1; }
 .ws-pnode-name {
     font-family: 'Dosis', sans-serif;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.07em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.65);
+    color: rgba(255,255,255,0.58);
     white-space: nowrap;
 }
-.ws-pnode-sub {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 9px;
-    color: rgba(255,255,255,0.28);
-    white-space: nowrap;
-}
-.ws-pnode-shield {
-    background: linear-gradient(135deg, #5600FF 0%, #3a00cc 100%);
-    border: 1px solid rgba(0,220,255,0.35);
-    box-shadow: 0 0 22px rgba(86,0,255,0.5), 0 0 44px rgba(0,220,255,0.13), inset 0 1px 0 rgba(255,255,255,0.12);
-    padding: 13px 16px;
-    min-width: 98px;
-    transform: scale(1.06);
-    animation: ws-shield-pulse 3s ease-in-out infinite;
-}
-.ws-pnode-shield .ws-pnode-name { color: #fff; font-size: 11px; }
-.ws-pnode-shield .ws-pnode-sub  { color: rgba(255,255,255,0.55); }
-.ws-pnode-badge {
-    font-family: 'Dosis', sans-serif;
-    font-size: 8px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #00DCFF;
-    background: rgba(0,220,255,0.13);
-    border: 1px solid rgba(0,220,255,0.28);
-    border-radius: 20px;
-    padding: 2px 7px;
-    margin-top: 4px;
-    white-space: nowrap;
-}
-.ws-pnode-site {
-    background: rgba(0,180,90,0.1);
-    border-color: rgba(0,180,90,0.22);
-}
-.ws-pnode-site .ws-pnode-name { color: #00c87a; }
+/* Connector — stretches to fill available space */
 .ws-pconn {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    padding: 0 5px;
-    flex-shrink: 0;
+    gap: 7px;
+    flex: 1;
+    min-width: 52px;
+    padding: 0 4px;
 }
 .ws-pconn-tag {
     font-family: 'Dosis', sans-serif;
-    font-size: 8px;
+    font-size: 9px;
     font-weight: 700;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #ff5577;
-    background: rgba(255,85,119,0.1);
-    border: 1px solid rgba(255,85,119,0.22);
+    color: #ff4d6a;
+    background: rgba(255,60,90,0.09);
+    border: 1px solid rgba(255,60,90,0.20);
     border-radius: 20px;
-    padding: 2px 7px;
+    padding: 3px 9px;
     white-space: nowrap;
 }
 .ws-pconn-tag.pass {
     color: #00c87a;
-    background: rgba(0,200,100,0.1);
-    border-color: rgba(0,200,100,0.22);
+    background: rgba(0,200,100,0.09);
+    border-color: rgba(0,200,100,0.20);
 }
-.ws-pconn-arrow { font-size: 13px; color: rgba(255,255,255,0.18); line-height: 1; }
-.ws-pconn-arrow.pass { color: rgba(0,200,100,0.45); }
+/* Horizontal line + arrowhead */
+.ws-pconn-arrow {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+.ws-pconn-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.16), rgba(255,255,255,0.06));
+}
+.ws-pconn-head {
+    color: rgba(255,255,255,0.18);
+    font-size: 14px;
+    line-height: 1;
+    margin-left: 1px;
+}
+.ws-pconn-head.pass { color: rgba(0,200,100,0.45); }
+/* WonderShield — hero node */
+.ws-pnode-shield {
+    background: linear-gradient(150deg, #5600ff 0%, #3200b8 100%);
+    border: 1px solid rgba(0,220,255,0.35);
+    box-shadow:
+        0 0 0 1px rgba(86,0,255,0.3),
+        0 0 32px rgba(86,0,255,0.65),
+        0 0 64px rgba(0,220,255,0.12),
+        inset 0 1px 0 rgba(255,255,255,0.14);
+    padding: 18px 26px;
+    min-width: 116px;
+    transform: scale(1.09);
+    animation: ws-shield-pulse 3s ease-in-out infinite;
+    gap: 8px;
+    z-index: 2;
+}
+.ws-pnode-shield .ws-pnode-name {
+    color: #fff;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+}
+.ws-pnode-badge {
+    font-family: 'Dosis', sans-serif;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: #00dcff;
+    background: rgba(0,220,255,0.11);
+    border: 1px solid rgba(0,220,255,0.24);
+    border-radius: 20px;
+    padding: 2px 9px;
+    white-space: nowrap;
+}
+/* Your Site */
+.ws-pnode-site {
+    background: rgba(0,170,80,0.07);
+    border-color: rgba(0,180,90,0.20);
+}
+.ws-pnode-site .ws-pnode-name { color: #00c87a; }
 @keyframes ws-shield-pulse {
-    0%, 100% { box-shadow: 0 0 22px rgba(86,0,255,0.5), 0 0 44px rgba(0,220,255,0.13), inset 0 1px 0 rgba(255,255,255,0.12); }
-    50%       { box-shadow: 0 0 30px rgba(86,0,255,0.7), 0 0 60px rgba(0,220,255,0.22), inset 0 1px 0 rgba(255,255,255,0.12); }
+    0%, 100% {
+        box-shadow: 0 0 0 1px rgba(86,0,255,0.3), 0 0 32px rgba(86,0,255,0.65), 0 0 64px rgba(0,220,255,0.12), inset 0 1px 0 rgba(255,255,255,0.14);
+    }
+    50% {
+        box-shadow: 0 0 0 1px rgba(86,0,255,0.4), 0 0 44px rgba(86,0,255,0.85), 0 0 88px rgba(0,220,255,0.22), inset 0 1px 0 rgba(255,255,255,0.14);
+    }
 }
 /* BODY */
 .ws-body { padding: 24px 32px 32px; }
@@ -389,48 +425,74 @@
         <div class="ws-layers-eyebrow">Defence in Depth</div>
         <div class="ws-layers-headline">Your site is protected by 4 layers — WonderShield is the final line of defence</div>
         <div class="ws-pipeline">
+
             <div class="ws-pnode">
                 <div class="ws-pnode-icon">🌐</div>
                 <div class="ws-pnode-name">Internet</div>
-                <div class="ws-pnode-sub">All Traffic</div>
             </div>
+
             <div class="ws-pconn">
                 <div class="ws-pconn-tag">Bots &amp; DDoS ✕</div>
-                <div class="ws-pconn-arrow">→</div>
+                <div class="ws-pconn-arrow">
+                    <div class="ws-pconn-line"></div>
+                    <div class="ws-pconn-head">›</div>
+                </div>
             </div>
+
             <div class="ws-pnode">
                 <div class="ws-pnode-icon">☁️</div>
                 <div class="ws-pnode-name">Cloudflare</div>
-                <div class="ws-pnode-sub">Edge Shield</div>
             </div>
+
             <div class="ws-pconn">
                 <div class="ws-pconn-tag">Attacks ✕</div>
-                <div class="ws-pconn-arrow">→</div>
+                <div class="ws-pconn-arrow">
+                    <div class="ws-pconn-line"></div>
+                    <div class="ws-pconn-head">›</div>
+                </div>
             </div>
+
             <div class="ws-pnode">
                 <div class="ws-pnode-icon">🖥️</div>
                 <div class="ws-pnode-name">Web Server</div>
-                <div class="ws-pnode-sub">Host Firewall</div>
             </div>
+
             <div class="ws-pconn">
                 <div class="ws-pconn-tag">Brute Force ✕</div>
-                <div class="ws-pconn-arrow">→</div>
+                <div class="ws-pconn-arrow">
+                    <div class="ws-pconn-line"></div>
+                    <div class="ws-pconn-head">›</div>
+                </div>
             </div>
+
             <div class="ws-pnode ws-pnode-shield">
-                <div class="ws-pnode-icon">🛡️</div>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="30" height="30" style="flex-shrink:0">
+                    <defs>
+                        <linearGradient id="wm-pipe-g" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#ffffff"/>
+                            <stop offset="100%" stop-color="#00dcff"/>
+                        </linearGradient>
+                    </defs>
+                    <polygon points="43.7,74 20.8,28 65.6,28" fill="none" stroke="url(#wm-pipe-g)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+                    <polygon points="57.3,74 34.4,28 79.2,28" fill="none" stroke="url(#wm-pipe-g)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+                </svg>
                 <div class="ws-pnode-name">WonderShield</div>
-                <div class="ws-pnode-sub">Login Guard</div>
                 <div class="ws-pnode-badge">Final Defence</div>
             </div>
+
             <div class="ws-pconn">
-                <div class="ws-pconn-tag pass">Verified Only ✓</div>
-                <div class="ws-pconn-arrow pass">→</div>
+                <div class="ws-pconn-tag pass">Verified ✓</div>
+                <div class="ws-pconn-arrow">
+                    <div class="ws-pconn-line"></div>
+                    <div class="ws-pconn-head pass">›</div>
+                </div>
             </div>
+
             <div class="ws-pnode ws-pnode-site">
                 <div class="ws-pnode-icon">✅</div>
                 <div class="ws-pnode-name">Your Site</div>
-                <div class="ws-pnode-sub">Protected</div>
             </div>
+
         </div>
     </div>
 
