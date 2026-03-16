@@ -75,19 +75,22 @@ function ws_get_ip() {
 }
 function ws_is_blocked($ip) {
     global $wpdb;
+    // Compare against PHP-calculated UTC time to avoid MySQL timezone mismatches
+    $now = gmdate('Y-m-d H:i:s');
     $row = $wpdb->get_row($wpdb->prepare(
-        "SELECT * FROM " . WS_TABLE_BLOCKS . " WHERE ip = %s AND expires_at > NOW()",
-        $ip
+        "SELECT * FROM " . WS_TABLE_BLOCKS . " WHERE ip = %s AND expires_at > %s",
+        $ip, $now
     ));
     return $row ? $row : false;
 }
 function ws_block_ip($ip, $reason = 'brute_force', $manual = 0) {
     global $wpdb;
-    $expires = date('Y-m-d H:i:s', time() + WS_LOCKOUT_DURATION);
+    // Store all times as UTC so ws_is_blocked comparisons are always consistent
+    $expires = gmdate('Y-m-d H:i:s', time() + WS_LOCKOUT_DURATION);
     $wpdb->replace(WS_TABLE_BLOCKS, [
         'ip'         => $ip,
         'reason'     => $reason,
-        'blocked_at' => current_time('mysql'),
+        'blocked_at' => gmdate('Y-m-d H:i:s'),
         'expires_at' => $expires,
         'manual'     => $manual,
     ], ['%s','%s','%s','%s','%d']);

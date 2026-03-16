@@ -12,7 +12,7 @@ add_action('init', function() {
     $ip    = ws_get_ip();
     $block = ws_is_blocked($ip);
     if (!$block) return;
-    $secs = max(0, strtotime($block->expires_at) - time());
+    $secs = max(0, (new DateTime($block->expires_at, new DateTimeZone('UTC')))->getTimestamp() - time());
     ws_log($ip, 'blocked_hit', $_SERVER['REQUEST_URI'] ?? '/', $_SERVER['HTTP_USER_AGENT'] ?? '');
     status_header(403);
     ws_block_response('Your IP has been temporarily blocked due to suspicious activity.', $ip, $secs);
@@ -116,7 +116,7 @@ add_action('init', function() {
     if ($block) {
         ws_log($ip, 'blocked_hit', $_SERVER['REQUEST_URI'] ?? '/', $_SERVER['HTTP_USER_AGENT'] ?? '');
         status_header(403);
-        $secs = max(0, strtotime($block->expires_at) - time());
+        $secs = max(0, (new DateTime($block->expires_at, new DateTimeZone('UTC')))->getTimestamp() - time());
         ws_block_response('Your IP has been temporarily blocked due to suspicious activity.', $ip, $secs);
     }
     ws_log($ip, 'probe_blocked', $_SERVER['REQUEST_URI'] ?? '/', $_SERVER['HTTP_USER_AGENT'] ?? '');
@@ -142,7 +142,7 @@ add_action('init', function() {
     if ($block) {
         ws_log($ip, 'blocked_hit', $uri, $_SERVER['HTTP_USER_AGENT'] ?? '');
         status_header(403);
-        $secs = max(0, strtotime($block->expires_at) - time());
+        $secs = max(0, (new DateTime($block->expires_at, new DateTimeZone('UTC')))->getTimestamp() - time());
         ws_block_response('Your IP has been temporarily blocked due to repeated failed login attempts.', $ip, $secs);
     }
     ws_log($ip, 'attempt', $uri, $_SERVER['HTTP_USER_AGENT'] ?? '');
@@ -162,7 +162,7 @@ add_action('admin_init', function() {
     if ($block) {
         ws_log($ip, 'blocked_hit', $uri, $_SERVER['HTTP_USER_AGENT'] ?? '');
         status_header(403);
-        $secs = max(0, strtotime($block->expires_at) - time());
+        $secs = max(0, (new DateTime($block->expires_at, new DateTimeZone('UTC')))->getTimestamp() - time());
         ws_block_response('Your IP has been temporarily blocked due to suspicious activity.', $ip, $secs);
     }
     ws_log($ip, 'attempt', $uri, $_SERVER['HTTP_USER_AGENT'] ?? '');
