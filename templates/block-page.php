@@ -312,7 +312,7 @@ h1 {
         </div>
     </div>
 
-    <?php if ($secs > 0): ?>
+    <?php if ($expires_ts > 0): ?>
     <div class="countdown-wrap">
         <div class="countdown-label">Access restores in</div>
         <div class="countdown-timer" id="ws-countdown">--:--</div>
@@ -326,22 +326,22 @@ h1 {
 
 </div>
 
-<?php if ($secs > 0): ?>
+<?php if ($expires_ts > 0): ?>
 <script>
 (function() {
-    var secs = <?php echo $secs; ?>;
+    var expiresAt = <?php echo (int) $expires_ts; ?>;
     var el  = document.getElementById('ws-countdown');
     var sub = document.getElementById('ws-countdown-sub');
     function tick() {
-        if (secs <= 0) {
+        var remaining = expiresAt - Math.floor(Date.now() / 1000);
+        if (remaining <= 0) {
             el.textContent  = '00:00';
             sub.textContent = 'You may now try again.';
             return;
         }
-        var m = Math.floor(secs / 60);
-        var s = secs % 60;
+        var m = Math.floor(remaining / 60);
+        var s = remaining % 60;
         el.textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
-        secs--;
         setTimeout(tick, 1000);
     }
     tick();

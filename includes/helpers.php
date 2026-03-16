@@ -143,8 +143,20 @@ function ws_count_recent_events($ip, $event_type, $window_seconds) {
 // BLOCK RESPONSE PAGE
 // ============================================================
 function ws_block_response($message, $ip = null, $secs = null) {
-    $ip   = $ip   ?: ws_get_ip();
-    $secs = max(0, (int)($secs ?: 0));
+    $ip = $ip ?: ws_get_ip();
+    // Always query the DB for the actual expiry so the timer reflects true
+    // remaining time — not the WS_LOCKOUT_DURATION constant passed at block time.
+    $expires_ts = 0;
+    $block = ws_is_blocked($ip);
+    if ($block) {
+        $expires_ts = (new DateTime($block->expires_at, new DateTimeZone('UTC')))->getTimestamp();
+        $secs = max(0, $expires_ts - time());
+    } else {
+        $secs = max(0, (int)($secs ?: 0));
+        if ($secs > 0) {
+            $expires_ts = time() + $secs;
+        }
+    }
     include WS_PLUGIN_DIR . 'templates/block-page.php';
     exit;
 }
