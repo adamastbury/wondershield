@@ -73,7 +73,7 @@ $ws_assets_url = WS_PLUGIN_URL;
 /* PIPELINE INTRO -on light lavender */
 .ws-pipeline-intro {
     background: #f4f3ff;
-    padding: 36px 32px 0;
+    padding: 36px 32px 20px;
     text-align: center;
 }
 .ws-pipeline-intro-eyebrow {
@@ -110,14 +110,11 @@ $ws_assets_url = WS_PLUGIN_URL;
         radial-gradient(ellipse 50% 160% at 100% 50%, rgba(86,0,255,0.35) 0%, transparent 60%),
         radial-gradient(ellipse 35% 120% at  0%  50%, rgba(0,40,160,0.15) 0%, transparent 55%),
         #080118;
-    border-radius: 0;
-    padding: 48px 64px;
-    margin: 0;
+    border-radius: 16px;
+    padding: 28px 32px 32px;
+    margin: 16px 32px 0;
     overflow: hidden;
     position: relative;
-    /* Fade into the lavender above and below — no hard box edge */
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 22%, black 78%, transparent 100%);
-    mask-image: linear-gradient(to bottom, transparent 0%, black 22%, black 78%, transparent 100%);
 }
 .ws-layers::before {
     content: '';
