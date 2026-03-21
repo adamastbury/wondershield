@@ -595,7 +595,7 @@ $ws_assets_url = WS_PLUGIN_URL;
 
             <div class="ws-pnode" id="ws-node-internet">
                 <i class="fa-solid fa-globe ws-fa-icon"></i>
-                <div class="ws-pnode-name">Internet</div>
+                <div class="ws-pnode-name">Traffic</div>
             </div>
 
             <div class="ws-pconn" id="ws-conn-1">
@@ -619,7 +619,7 @@ $ws_assets_url = WS_PLUGIN_URL;
 
             <div class="ws-pnode" id="ws-node-ws">
                 <i class="fa-solid fa-server ws-fa-icon"></i>
-                <div class="ws-pnode-name">Web Server</div>
+                <div class="ws-pnode-name">Hosting</div>
             </div>
 
             <div class="ws-pconn" id="ws-conn-3">
