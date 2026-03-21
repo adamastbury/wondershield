@@ -93,6 +93,13 @@ $ws_assets_url = WS_PLUGIN_URL;
     letter-spacing: -0.02em;
     line-height: 1.3;
 }
+.ws-pipeline-intro-sub {
+    font-size: 13px;
+    color: #6b5fa0;
+    line-height: 1.65;
+    max-width: 680px;
+    margin: 10px auto 0;
+}
 /* SECURITY PIPELINE */
 .ws-layers {
     /* Same orb-based approach as WM website — creates depth rather than flat gradient */
@@ -193,22 +200,6 @@ $ws_assets_url = WS_PLUGIN_URL;
     min-width: 52px;
     padding: 0 4px;
 }
-/* All connector tags use Wonder Media teal -protection active */
-.ws-pconn-tag {
-    font-family: 'Dosis', sans-serif;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: #00dcff;
-    background: rgba(0,220,255,0.10);
-    border: 1px solid rgba(0,220,255,0.28);
-    border-radius: 20px;
-    padding: 5px 12px;
-    white-space: nowrap;
-    box-shadow: 0 0 14px rgba(0,220,255,0.18), inset 0 0 6px rgba(0,220,255,0.06);
-    text-shadow: 0 0 10px rgba(0,220,255,0.4);
-}
 /* Horizontal line + arrowhead */
 .ws-pconn-arrow {
     display: flex;
@@ -250,10 +241,9 @@ $ws_assets_url = WS_PLUGIN_URL;
     line-height: 1;
     margin-left: 2px;
 }
-/* Pipeline narrow-viewport: hide connector tags + shrink nodes so it stays on one line */
+/* Pipeline narrow-viewport: shrink nodes so everything stays on one line */
 @media (max-width: 900px) {
     .ws-layers { margin-left: 16px; margin-right: 16px; }
-    .ws-pconn-tag { display: none; }
     .ws-pnode { padding: 14px 10px; min-width: 68px; }
     .ws-pnode-shield { padding: 14px 14px; min-width: 88px; }
     .ws-pconn { min-width: 24px; }
@@ -597,6 +587,7 @@ $ws_assets_url = WS_PLUGIN_URL;
     <div class="ws-pipeline-intro">
         <div class="ws-pipeline-intro-eyebrow">Defence in Depth</div>
         <div class="ws-pipeline-intro-headline">Your site is protected by four layers -<span class="ws-headline-accent">WonderShield</span> is the final line of defence</div>
+        <div class="ws-pipeline-intro-sub">Real-time protection across brute force, DDoS, automated bots, credential stuffing, XML-RPC abuse, user enumeration and malicious probes — actively maintained and continuously hardened as the threat landscape evolves.</div>
     </div>
 
     <!-- SECURITY PIPELINE -->
@@ -609,7 +600,6 @@ $ws_assets_url = WS_PLUGIN_URL;
             </div>
 
             <div class="ws-pconn" id="ws-conn-1">
-                <div class="ws-pconn-tag">Bots &amp; DDoS ✓</div>
                 <div class="ws-pconn-arrow">
                     <div class="ws-pconn-line"></div>
                     <div class="ws-pconn-head">›</div>
@@ -622,7 +612,6 @@ $ws_assets_url = WS_PLUGIN_URL;
             </div>
 
             <div class="ws-pconn" id="ws-conn-2">
-                <div class="ws-pconn-tag">Attacks ✓</div>
                 <div class="ws-pconn-arrow">
                     <div class="ws-pconn-line"></div>
                     <div class="ws-pconn-head">›</div>
@@ -635,7 +624,6 @@ $ws_assets_url = WS_PLUGIN_URL;
             </div>
 
             <div class="ws-pconn" id="ws-conn-3">
-                <div class="ws-pconn-tag">Brute Force ✓</div>
                 <div class="ws-pconn-arrow">
                     <div class="ws-pconn-line"></div>
                     <div class="ws-pconn-head">›</div>
@@ -658,7 +646,6 @@ $ws_assets_url = WS_PLUGIN_URL;
             </div>
 
             <div class="ws-pconn" id="ws-conn-4">
-                <div class="ws-pconn-tag">Verified ✓</div>
                 <div class="ws-pconn-arrow">
                     <div class="ws-pconn-line"></div>
                     <div class="ws-pconn-head">›</div>
