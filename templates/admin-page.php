@@ -315,17 +315,36 @@ $ws_assets_url = WS_PLUGIN_URL;
 /* STATS */
 .ws-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
     gap: 14px;
     margin-bottom: 28px;
 }
 .ws-stat {
-    background: #fff;
-    border: 1px solid #e8e4ff;
+    background: linear-gradient(150deg, #ffffff 0%, #fdfcff 100%);
+    border: 1px solid #ebe7ff;
     border-radius: 14px;
-    padding: 18px 16px;
+    padding: 20px 18px 18px;
     position: relative;
     overflow: hidden;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    animation: ws-stat-in 0.5s ease both;
+}
+.ws-stat:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 36px rgba(86,0,255,0.10);
+    border-color: rgba(86,0,255,0.22);
+}
+.ws-stat:nth-child(1) { animation-delay: 0.04s; }
+.ws-stat:nth-child(2) { animation-delay: 0.09s; }
+.ws-stat:nth-child(3) { animation-delay: 0.14s; }
+.ws-stat:nth-child(4) { animation-delay: 0.19s; }
+.ws-stat:nth-child(5) { animation-delay: 0.24s; }
+.ws-stat:nth-child(6) { animation-delay: 0.29s; }
+.ws-stat:nth-child(7) { animation-delay: 0.34s; }
+.ws-stat:nth-child(8) { animation-delay: 0.39s; }
+@keyframes ws-stat-in {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 .ws-stat::before {
     content: '';
@@ -334,17 +353,64 @@ $ws_assets_url = WS_PLUGIN_URL;
     height: 3px;
     background: linear-gradient(90deg, #5600FF, #00DCFF);
     border-radius: 14px 14px 0 0;
+    opacity: 0.65;
+    transition: opacity 0.22s;
 }
-.ws-stat-value { font-size: 30px; font-weight: 800; color: #0f0230; line-height: 1; margin-bottom: 6px; }
-.ws-stat-value.danger  { color: #dc2626; }
-.ws-stat-value.warning { color: #ea580c; }
-.ws-stat-value.teal    { color: #0891b2; }
+.ws-stat:hover::before { opacity: 1; }
+/* All stat numbers use the Wonder Media brand gradient — consistent and on-brand */
+.ws-stat-value {
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 7px;
+    background: linear-gradient(110deg, #5600ff 10%, #00dcff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
 .ws-stat-label {
     font-family: 'Dosis', sans-serif;
     font-size: 10px;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.11em;
     text-transform: uppercase;
-    color: #8b7fb8;
+    color: #a094c8;
+}
+/* Gradient accent on "WonderShield" in pipeline headline */
+.ws-headline-accent {
+    background: linear-gradient(90deg, #5600ff, #00dcff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+/* Subtle separator between pipeline and body */
+.ws-body {
+    position: relative;
+}
+.ws-body::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 32px; right: 32px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(86,0,255,0.12), transparent);
+}
+/* Panel header FA icons */
+.ws-panel-header h2 .ws-ph-icon {
+    color: #5600FF;
+    margin-right: 7px;
+    font-size: 13px;
+}
+/* Empty state */
+.ws-empty {
+    padding: 40px 24px;
+    text-align: center;
+    color: #b8aee0;
+    font-size: 14px;
+}
+.ws-empty-icon {
+    font-size: 30px;
+    display: block;
+    margin-bottom: 12px;
+    color: #d0c8ea;
 }
 /* PANELS */
 .ws-panel { background: #fff; border: 1px solid #e8e4ff; border-radius: 14px; margin-bottom: 22px; overflow: hidden; }
@@ -451,6 +517,7 @@ $ws_assets_url = WS_PLUGIN_URL;
 .ws-config-item { background: #faf9ff; border: 1px solid #ede9ff; border-radius: 10px; padding: 14px 16px; }
 .ws-config-label { font-family: 'Dosis', sans-serif; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: #8b7fb8; margin-bottom: 5px; }
 .ws-config-value { font-size: 17px; font-weight: 700; color: #5600FF; }
+.ws-config-value.ws-config-email { font-size: 13px; }
 .ws-config-sub { font-size: 11px; color: #a094c8; margin-top: 2px; }
 .ws-footer {
     background: linear-gradient(135deg, #0f0230 0%, #1a0452 100%);
@@ -508,7 +575,7 @@ $ws_assets_url = WS_PLUGIN_URL;
     <!-- PIPELINE HEADING — on light lavender -->
     <div class="ws-pipeline-intro">
         <div class="ws-pipeline-intro-eyebrow">Defence in Depth</div>
-        <div class="ws-pipeline-intro-headline">Your site is protected by 4 layers — WonderShield is the final line of defence</div>
+        <div class="ws-pipeline-intro-headline">Your site is protected by 4 layers — <span class="ws-headline-accent">WonderShield</span> is the final line of defence</div>
     </div>
 
     <!-- SECURITY PIPELINE -->
@@ -578,7 +645,7 @@ $ws_assets_url = WS_PLUGIN_URL;
             </div>
 
             <div class="ws-pnode ws-pnode-site" id="ws-node-site">
-                <i class="fa-solid fa-circle-check ws-fa-icon"></i>
+                <i class="fa-solid fa-lock ws-fa-icon"></i>
                 <div class="ws-pnode-name">Your Site</div>
             </div>
 
@@ -593,11 +660,11 @@ $ws_assets_url = WS_PLUGIN_URL;
         <!-- STATS -->
         <div class="ws-stats">
             <div class="ws-stat">
-                <div class="ws-stat-value danger"><?php echo $stats['blocked_24h']; ?></div>
+                <div class="ws-stat-value"><?php echo $stats['blocked_24h']; ?></div>
                 <div class="ws-stat-label">Blocked 24h</div>
             </div>
             <div class="ws-stat">
-                <div class="ws-stat-value warning"><?php echo $stats['blocked_7d']; ?></div>
+                <div class="ws-stat-value"><?php echo $stats['blocked_7d']; ?></div>
                 <div class="ws-stat-label">Blocked 7 Days</div>
             </div>
             <div class="ws-stat">
@@ -605,11 +672,11 @@ $ws_assets_url = WS_PLUGIN_URL;
                 <div class="ws-stat-label">Blocked 30 Days</div>
             </div>
             <div class="ws-stat">
-                <div class="ws-stat-value warning"><?php echo $stats['attempts_24h']; ?></div>
+                <div class="ws-stat-value"><?php echo $stats['attempts_24h']; ?></div>
                 <div class="ws-stat-label">Attempts 24h</div>
             </div>
             <div class="ws-stat">
-                <div class="ws-stat-value teal"><?php echo $stats['active_blocks']; ?></div>
+                <div class="ws-stat-value"><?php echo $stats['active_blocks']; ?></div>
                 <div class="ws-stat-label">Active Blocks</div>
             </div>
             <div class="ws-stat">
@@ -629,11 +696,11 @@ $ws_assets_url = WS_PLUGIN_URL;
         <!-- ACTIVE BLOCKS -->
         <div class="ws-panel">
             <div class="ws-panel-header">
-                <h2>🛡 Active Blocks</h2>
+                <h2><i class="fa-solid fa-shield-halved ws-ph-icon"></i>Active Blocks</h2>
                 <span class="ws-count-badge"><?php echo count($active_blocks); ?> active</span>
             </div>
             <?php if (empty($active_blocks)): ?>
-                <div class="ws-empty"><span>✓</span> No active blocks. All clear.</div>
+                <div class="ws-empty"><i class="fa-solid fa-circle-check ws-empty-icon"></i>No active blocks — all clear.</div>
             <?php else: ?>
             <table class="ws-table">
                 <thead>
@@ -670,7 +737,7 @@ $ws_assets_url = WS_PLUGIN_URL;
         <!-- PROTECTION RULES -->
         <div class="ws-panel">
             <div class="ws-panel-header">
-                <h2>⚙ Protection Rules</h2>
+                <h2><i class="fa-solid fa-sliders ws-ph-icon"></i>Protection Rules</h2>
             </div>
             <div class="ws-config-grid">
                 <div class="ws-config-item">
@@ -700,7 +767,7 @@ $ws_assets_url = WS_PLUGIN_URL;
                 </div>
                 <div class="ws-config-item">
                     <div class="ws-config-label">XML-RPC</div>
-                    <div class="ws-config-value" style="color:#16a34a;">Blocked</div>
+                    <div class="ws-config-value">Blocked</div>
                     <div class="ws-config-sub">all requests</div>
                 </div>
                 <div class="ws-config-item">
@@ -710,12 +777,12 @@ $ws_assets_url = WS_PLUGIN_URL;
                 </div>
                 <div class="ws-config-item">
                     <div class="ws-config-label">User Enumeration</div>
-                    <div class="ws-config-value" style="color:#16a34a;">Blocked</div>
+                    <div class="ws-config-value">Blocked</div>
                     <div class="ws-config-sub">?author= &amp; REST API</div>
                 </div>
                 <div class="ws-config-item">
                     <div class="ws-config-label">Notify Email</div>
-                    <div class="ws-config-value" style="font-size:13px;color:#0891b2;"><?php echo esc_html(WS_NOTIFY_EMAIL); ?></div>
+                    <div class="ws-config-value ws-config-email"><?php echo esc_html(WS_NOTIFY_EMAIL); ?></div>
                     <div class="ws-config-sub">on block events</div>
                 </div>
             </div>
@@ -724,7 +791,7 @@ $ws_assets_url = WS_PLUGIN_URL;
         <!-- EVENT LOG -->
         <div class="ws-panel">
             <div class="ws-panel-header">
-                <h2>📋 Event Log</h2>
+                <h2><i class="fa-solid fa-clock-rotate-left ws-ph-icon"></i>Event Log</h2>
                 <span class="ws-count-badge"><?php echo number_format($stats['total_events']); ?> total events</span>
             </div>
             <div class="ws-log-wrap">

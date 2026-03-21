@@ -17,7 +17,7 @@ jobs:
       - name: Build plugin zip
         run: |
           mkdir wondershield
-          cp -r wondershield.php includes templates wondershield/
+          cp -r wondershield.php includes templates wm-icon.svg wm-logo.svg wondershield/
           zip -r wondershield.zip wondershield/
 
       - name: Create GitHub Release
