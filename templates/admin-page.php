@@ -587,7 +587,7 @@ $ws_assets_url = WS_PLUGIN_URL;
     <div class="ws-pipeline-intro">
         <div class="ws-pipeline-intro-eyebrow">Defence in Depth</div>
         <div class="ws-pipeline-intro-headline">Your site is protected by four layers -<span class="ws-headline-accent">WonderShield</span> is the final line of defence</div>
-        <div class="ws-pipeline-intro-sub">Real-time protection across brute force, DDoS, automated bots, credential stuffing, XML-RPC abuse, user enumeration and malicious probes — actively maintained and continuously hardened as the threat landscape evolves.</div>
+        <div class="ws-pipeline-intro-sub">Real-time protection across brute force, DDoS, automated bots, credential stuffing, XML-RPC abuse, user enumeration and malicious probes - actively maintained and continuously hardened as the threat landscape evolves.</div>
     </div>
 
     <!-- SECURITY PIPELINE -->
