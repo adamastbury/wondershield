@@ -1,4 +1,5 @@
 <?php if (!defined('ABSPATH')) exit; ?>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Dosis:wght@600&display=swap');
 #wondershield-wrap * { box-sizing: border-box; }
@@ -57,12 +58,35 @@
     text-transform: uppercase;
     align-self: flex-start;
 }
+/* PIPELINE INTRO — on light lavender */
+.ws-pipeline-intro {
+    background: #f4f3ff;
+    padding: 36px 32px 20px;
+    text-align: center;
+}
+.ws-pipeline-intro-eyebrow {
+    font-family: 'Dosis', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #5600ff;
+    margin-bottom: 10px;
+}
+.ws-pipeline-intro-headline {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f0230;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+}
 /* SECURITY PIPELINE */
 .ws-layers {
     background: linear-gradient(135deg, #0a0120 0%, #170340 55%, #0a0120 100%);
     border-radius: 16px;
     padding: 28px 32px 32px;
-    margin: 24px 32px 0;
+    margin: 0 32px 0;
     overflow: hidden;
     position: relative;
 }
@@ -70,41 +94,20 @@
     content: '';
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(circle, rgba(255,255,255,0.018) 1px, transparent 1px);
+    background-image: radial-gradient(circle, rgba(255,255,255,0.022) 1px, transparent 1px);
     background-size: 28px 28px;
     pointer-events: none;
 }
-/* Subtle ambient glow behind WonderShield */
+/* Ambient glow behind WonderShield */
 .ws-layers::after {
     content: '';
     position: absolute;
     width: 320px; height: 180px;
-    background: radial-gradient(ellipse, rgba(86,0,255,0.18) 0%, transparent 70%);
+    background: radial-gradient(ellipse, rgba(86,0,255,0.22) 0%, transparent 70%);
     top: 50%; right: 24%;
     transform: translateY(-50%);
     pointer-events: none;
     filter: blur(24px);
-}
-.ws-layers-eyebrow {
-    font-family: 'Dosis', sans-serif;
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.26em;
-    text-transform: uppercase;
-    color: rgba(0,220,255,0.45);
-    text-align: center;
-    margin-bottom: 6px;
-    position: relative;
-}
-.ws-layers-headline {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    color: rgba(255,255,255,0.38);
-    text-align: center;
-    margin-bottom: 28px;
-    letter-spacing: -0.01em;
-    position: relative;
 }
 .ws-pipeline {
     display: flex;
@@ -116,25 +119,34 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 7px;
-    padding: 16px 20px;
+    gap: 8px;
+    padding: 18px 20px;
     border-radius: 14px;
-    background: rgba(255,255,255,0.055);
-    border: 1px solid rgba(255,255,255,0.09);
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.18);
     flex-shrink: 0;
     min-width: 90px;
     text-align: center;
     position: relative;
     z-index: 1;
+    transition: background 0.3s, border-color 0.3s;
 }
-.ws-pnode-icon { font-size: 24px; line-height: 1; }
+.ws-pnode:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: rgba(255,255,255,0.30);
+}
+.ws-fa-icon {
+    font-size: 26px;
+    line-height: 1;
+    color: rgba(255,255,255,0.85);
+}
 .ws-pnode-name {
     font-family: 'Dosis', sans-serif;
     font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.10em;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.58);
+    color: rgba(255,255,255,0.90);
     white-space: nowrap;
 }
 /* Connector — stretches to fill available space */
@@ -142,28 +154,32 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
     flex: 1;
     min-width: 52px;
     padding: 0 4px;
 }
 .ws-pconn-tag {
     font-family: 'Dosis', sans-serif;
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: #ff4d6a;
-    background: rgba(255,60,90,0.09);
-    border: 1px solid rgba(255,60,90,0.20);
+    color: #ff3355;
+    background: rgba(255,40,70,0.14);
+    border: 1px solid rgba(255,50,80,0.38);
     border-radius: 20px;
-    padding: 3px 9px;
+    padding: 5px 12px;
     white-space: nowrap;
+    box-shadow: 0 0 14px rgba(255,40,70,0.22), inset 0 0 6px rgba(255,40,70,0.06);
+    text-shadow: 0 0 10px rgba(255,80,100,0.5);
 }
 .ws-pconn-tag.pass {
-    color: #00c87a;
-    background: rgba(0,200,100,0.09);
-    border-color: rgba(0,200,100,0.20);
+    color: #00e090;
+    background: rgba(0,200,120,0.12);
+    border-color: rgba(0,220,130,0.35);
+    box-shadow: 0 0 14px rgba(0,200,100,0.18), inset 0 0 6px rgba(0,200,100,0.06);
+    text-shadow: 0 0 10px rgba(0,220,130,0.4);
 }
 /* Horizontal line + arrowhead */
 .ws-pconn-arrow {
@@ -173,16 +189,49 @@
 }
 .ws-pconn-line {
     flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.16), rgba(255,255,255,0.06));
+    height: 2px;
+    background: rgba(255,255,255,0.10);
+    position: relative;
+    overflow: hidden;
+    border-radius: 1px;
+}
+/* Animated flow dot on connector lines */
+.ws-pconn-line::after {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -50px;
+    width: 50px;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, rgba(0,220,255,0.9), transparent);
+    border-radius: 2px;
+    filter: blur(1px);
+    animation: ws-flow 2.2s linear infinite;
+}
+.ws-pconn.threat .ws-pconn-line::after {
+    background: linear-gradient(90deg, transparent, rgba(255,60,80,0.85), transparent);
+    animation-duration: 1.8s;
+}
+.ws-pconn.pass .ws-pconn-line::after {
+    background: linear-gradient(90deg, transparent, rgba(0,220,130,0.9), transparent);
+    animation-duration: 2.8s;
+}
+/* Stagger the flow dots so they don't all pulse together */
+.ws-pconn:nth-of-type(2) .ws-pconn-line::after { animation-delay: 0s; }
+.ws-pconn:nth-of-type(4) .ws-pconn-line::after { animation-delay: 0.55s; }
+.ws-pconn:nth-of-type(6) .ws-pconn-line::after { animation-delay: 1.1s; }
+.ws-pconn:nth-of-type(8) .ws-pconn-line::after { animation-delay: 0.3s; }
+@keyframes ws-flow {
+    0%   { left: -50px; }
+    100% { left: 100%; }
 }
 .ws-pconn-head {
-    color: rgba(255,255,255,0.18);
-    font-size: 14px;
+    color: rgba(255,255,255,0.30);
+    font-size: 16px;
     line-height: 1;
-    margin-left: 1px;
+    margin-left: 2px;
 }
-.ws-pconn-head.pass { color: rgba(0,200,100,0.45); }
+.ws-pconn-head.pass { color: rgba(0,220,130,0.55); }
 /* WonderShield — hero node */
 .ws-pnode-shield {
     background: linear-gradient(150deg, #5600ff 0%, #3200b8 100%);
@@ -199,6 +248,10 @@
     gap: 8px;
     z-index: 2;
 }
+.ws-pnode-shield .ws-fa-icon {
+    color: #fff;
+    filter: drop-shadow(0 0 8px rgba(0,220,255,0.6));
+}
 .ws-pnode-shield .ws-pnode-name {
     color: #fff;
     font-size: 12px;
@@ -214,15 +267,19 @@
     background: rgba(0,220,255,0.11);
     border: 1px solid rgba(0,220,255,0.24);
     border-radius: 20px;
-    padding: 2px 9px;
+    padding: 3px 9px;
     white-space: nowrap;
 }
 /* Your Site */
 .ws-pnode-site {
-    background: rgba(0,170,80,0.07);
-    border-color: rgba(0,180,90,0.20);
+    background: rgba(0,180,100,0.10);
+    border-color: rgba(0,220,130,0.28);
 }
-.ws-pnode-site .ws-pnode-name { color: #00c87a; }
+.ws-pnode-site .ws-pnode-name { color: #00e090; }
+.ws-pnode-site .ws-fa-icon {
+    color: #00e090;
+    filter: drop-shadow(0 0 8px rgba(0,200,120,0.5));
+}
 @keyframes ws-shield-pulse {
     0%, 100% {
         box-shadow: 0 0 0 1px rgba(86,0,255,0.3), 0 0 32px rgba(86,0,255,0.65), 0 0 64px rgba(0,220,255,0.12), inset 0 1px 0 rgba(255,255,255,0.14);
@@ -232,7 +289,7 @@
     }
 }
 /* BODY */
-.ws-body { padding: 24px 32px 32px; }
+.ws-body { padding: 28px 32px 32px; }
 .ws-notice {
     background: #f0fdf4;
     border: 1px solid #86efac;
@@ -420,18 +477,22 @@
         <div class="ws-version">v<?php echo WS_VERSION; ?></div>
     </div>
 
+    <!-- PIPELINE HEADING — on light lavender -->
+    <div class="ws-pipeline-intro">
+        <div class="ws-pipeline-intro-eyebrow">Defence in Depth</div>
+        <div class="ws-pipeline-intro-headline">Your site is protected by 4 layers — WonderShield is the final line of defence</div>
+    </div>
+
     <!-- SECURITY PIPELINE -->
     <div class="ws-layers">
-        <div class="ws-layers-eyebrow">Defence in Depth</div>
-        <div class="ws-layers-headline">Your site is protected by 4 layers — WonderShield is the final line of defence</div>
         <div class="ws-pipeline">
 
             <div class="ws-pnode">
-                <div class="ws-pnode-icon">🌐</div>
+                <i class="fa-solid fa-globe ws-fa-icon"></i>
                 <div class="ws-pnode-name">Internet</div>
             </div>
 
-            <div class="ws-pconn">
+            <div class="ws-pconn threat">
                 <div class="ws-pconn-tag">Bots &amp; DDoS ✕</div>
                 <div class="ws-pconn-arrow">
                     <div class="ws-pconn-line"></div>
@@ -440,11 +501,11 @@
             </div>
 
             <div class="ws-pnode">
-                <div class="ws-pnode-icon">☁️</div>
+                <i class="fa-solid fa-cloud ws-fa-icon"></i>
                 <div class="ws-pnode-name">Cloudflare</div>
             </div>
 
-            <div class="ws-pconn">
+            <div class="ws-pconn threat">
                 <div class="ws-pconn-tag">Attacks ✕</div>
                 <div class="ws-pconn-arrow">
                     <div class="ws-pconn-line"></div>
@@ -453,11 +514,11 @@
             </div>
 
             <div class="ws-pnode">
-                <div class="ws-pnode-icon">🖥️</div>
+                <i class="fa-solid fa-server ws-fa-icon"></i>
                 <div class="ws-pnode-name">Web Server</div>
             </div>
 
-            <div class="ws-pconn">
+            <div class="ws-pconn threat">
                 <div class="ws-pconn-tag">Brute Force ✕</div>
                 <div class="ws-pconn-arrow">
                     <div class="ws-pconn-line"></div>
@@ -466,7 +527,7 @@
             </div>
 
             <div class="ws-pnode ws-pnode-shield">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="30" height="30" style="flex-shrink:0">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="30" height="30" style="flex-shrink:0" class="ws-fa-icon" aria-hidden="true">
                     <defs>
                         <linearGradient id="wm-pipe-g" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stop-color="#ffffff"/>
@@ -480,7 +541,7 @@
                 <div class="ws-pnode-badge">Final Defence</div>
             </div>
 
-            <div class="ws-pconn">
+            <div class="ws-pconn pass">
                 <div class="ws-pconn-tag pass">Verified ✓</div>
                 <div class="ws-pconn-arrow">
                     <div class="ws-pconn-line"></div>
@@ -489,7 +550,7 @@
             </div>
 
             <div class="ws-pnode ws-pnode-site">
-                <div class="ws-pnode-icon">✅</div>
+                <i class="fa-solid fa-circle-check ws-fa-icon"></i>
                 <div class="ws-pnode-name">Your Site</div>
             </div>
 
