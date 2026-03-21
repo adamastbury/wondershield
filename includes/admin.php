@@ -11,7 +11,7 @@ add_action('admin_menu', function() {
         'manage_options',
         'wondershield',
         'ws_render_page',
-        plugins_url('wm-icon.svg', WS_PLUGIN_DIR . 'wondershield.php'),
+        WS_PLUGIN_URL . 'wm-icon.svg',
         30
     );
 });

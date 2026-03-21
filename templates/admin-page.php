@@ -1,9 +1,12 @@
 <?php if (!defined('ABSPATH')) exit;
-$ws_assets_url = plugins_url('/', WS_PLUGIN_DIR . 'wondershield.php');
+$ws_assets_url = WS_PLUGIN_URL;
 ?>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Dosis:wght@600&display=swap');
+/* Prevent the WP admin content area from scrolling sideways */
+.wp-admin #wpbody-content,
+.wp-admin #wpbody { overflow-x: hidden; }
 #wondershield-wrap * { box-sizing: border-box; }
 #wondershield-wrap {
     font-family: 'Plus Jakarta Sans', sans-serif;
