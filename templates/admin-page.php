@@ -529,6 +529,8 @@ $ws_assets_url = WS_PLUGIN_URL;
 .ws-config-value { font-size: 17px; font-weight: 700; color: #5600FF; }
 .ws-config-value.ws-config-email { font-size: 13px; }
 .ws-config-sub { font-size: 11px; color: #a094c8; margin-top: 2px; }
+/* Hide WP's own footer credits on our page only */
+#footer-left, #footer-right { display: none !important; }
 .ws-footer {
     background: linear-gradient(135deg, #0f0230 0%, #1a0452 100%);
     padding: 28px 36px;
@@ -538,6 +540,7 @@ $ws_assets_url = WS_PLUGIN_URL;
     justify-content: center;
     gap: 24px;
     border-top: none;
+    border-radius: 24px 0 0 0;
 }
 .ws-footer-inner {
     display: flex;
