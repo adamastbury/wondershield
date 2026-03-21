@@ -80,24 +80,26 @@ $ws_assets_url = WS_PLUGIN_URL;
     font-family: 'Dosis', sans-serif;
     font-size: 12px;
     font-weight: 700;
-    letter-spacing: 0.28em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: #5600ff;
     margin-bottom: 10px;
 }
 .ws-pipeline-intro-headline {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 20px;
+    font-size: 32px;
     font-weight: 700;
-    color: #0f0230;
-    letter-spacing: -0.02em;
-    line-height: 1.3;
+    line-height: 1.2;
+    background: linear-gradient(90deg, #5600ff 0%, #00dcff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 .ws-pipeline-intro-sub {
-    font-size: 13px;
-    color: #6b5fa0;
-    line-height: 1.65;
-    max-width: 680px;
+    font-size: 14px;
+    color: rgba(15,2,48,0.65);
+    line-height: 1.7;
+    max-width: 860px;
     margin: 10px auto 0;
 }
 /* SECURITY PIPELINE */
@@ -386,13 +388,6 @@ $ws_assets_url = WS_PLUGIN_URL;
     text-transform: uppercase;
     color: #a094c8;
 }
-/* Gradient accent on "WonderShield" in pipeline headline */
-.ws-headline-accent {
-    background: linear-gradient(90deg, #5600ff, #00dcff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
 /* Subtle separator between pipeline and body */
 .ws-body {
     position: relative;
@@ -586,7 +581,7 @@ $ws_assets_url = WS_PLUGIN_URL;
     <!-- PIPELINE HEADING -on light lavender -->
     <div class="ws-pipeline-intro">
         <div class="ws-pipeline-intro-eyebrow">Defence in Depth</div>
-        <div class="ws-pipeline-intro-headline">Your site is protected by four layers -<span class="ws-headline-accent">WonderShield</span> is the final line of defence</div>
+        <div class="ws-pipeline-intro-headline">Your site is protected by four layers - WonderShield is the final line of defence</div>
         <div class="ws-pipeline-intro-sub">Real-time protection across brute force, DDoS, automated bots, credential stuffing, XML-RPC abuse, user enumeration and malicious probes - actively maintained and continuously hardened as the threat landscape evolves.</div>
     </div>
 
