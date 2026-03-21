@@ -1,4 +1,6 @@
-<?php if (!defined('ABSPATH')) exit; ?>
+<?php if (!defined('ABSPATH')) exit;
+$ws_assets_url = plugins_url('/', WS_PLUGIN_DIR . 'wondershield.php');
+?>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Dosis:wght@600&display=swap');
@@ -10,6 +12,7 @@
     margin: -20px -20px 0 -2px;
     padding: 0;
     color: #0f0230;
+    overflow-x: hidden;
 }
 .ws-header {
     background: linear-gradient(135deg, #0f0230 0%, #2d0a6e 100%);
@@ -28,7 +31,7 @@
     flex-shrink: 0;
     filter: drop-shadow(0 0 12px rgba(86,0,255,0.5)) drop-shadow(0 0 24px rgba(0,220,255,0.15));
 }
-.ws-logo svg { width: 40px; height: 40px; }
+.ws-logo img { width: 44px; height: 44px; object-fit: contain; }
 .ws-header-text h1 {
     font-size: 24px;
     font-weight: 800;
@@ -86,7 +89,7 @@
     background: linear-gradient(135deg, #0a0120 0%, #170340 55%, #0a0120 100%);
     border-radius: 16px;
     padding: 28px 32px 32px;
-    margin: 0 32px 0;
+    margin: 16px 32px 0;
     overflow: hidden;
     position: relative;
 }
@@ -129,11 +132,34 @@
     text-align: center;
     position: relative;
     z-index: 1;
+    overflow: hidden;
     transition: background 0.3s, border-color 0.3s;
 }
 .ws-pnode:hover {
     background: rgba(255,255,255,0.15);
     border-color: rgba(255,255,255,0.30);
+}
+/* Node shimmer pseudo-element (triggered by JS) */
+.ws-pnode::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(0,220,130,0.30) 50%, transparent 100%);
+    transform: translateX(-110%);
+    pointer-events: none;
+    border-radius: inherit;
+    opacity: 0;
+}
+.ws-pnode.ws-shimmer-go::after {
+    opacity: 1;
+    animation: ws-node-shimmer 0.45s ease-out forwards;
+}
+.ws-pnode-shield.ws-shimmer-go::after {
+    background: linear-gradient(90deg, transparent 0%, rgba(0,220,130,0.45) 50%, transparent 100%);
+}
+@keyframes ws-node-shimmer {
+    0%   { transform: translateX(-110%); opacity: 1; }
+    100% { transform: translateX(110%);  opacity: 0; }
 }
 .ws-fa-icon {
     font-size: 26px;
@@ -159,25 +185,19 @@
     min-width: 52px;
     padding: 0 4px;
 }
+/* All connector tags are green — protection is active everywhere */
 .ws-pconn-tag {
     font-family: 'Dosis', sans-serif;
     font-size: 11px;
     font-weight: 800;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: #ff3355;
-    background: rgba(255,40,70,0.14);
-    border: 1px solid rgba(255,50,80,0.38);
+    color: #00e090;
+    background: rgba(0,200,120,0.12);
+    border: 1px solid rgba(0,220,130,0.35);
     border-radius: 20px;
     padding: 5px 12px;
     white-space: nowrap;
-    box-shadow: 0 0 14px rgba(255,40,70,0.22), inset 0 0 6px rgba(255,40,70,0.06);
-    text-shadow: 0 0 10px rgba(255,80,100,0.5);
-}
-.ws-pconn-tag.pass {
-    color: #00e090;
-    background: rgba(0,200,120,0.12);
-    border-color: rgba(0,220,130,0.35);
     box-shadow: 0 0 14px rgba(0,200,100,0.18), inset 0 0 6px rgba(0,200,100,0.06);
     text-shadow: 0 0 10px rgba(0,220,130,0.4);
 }
@@ -190,48 +210,38 @@
 .ws-pconn-line {
     flex: 1;
     height: 2px;
-    background: rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.08);
     position: relative;
     overflow: hidden;
     border-radius: 1px;
 }
-/* Animated flow dot on connector lines */
+/* Beam — hidden by default, JS adds ws-beam-go to fire it */
 .ws-pconn-line::after {
     content: '';
     position: absolute;
     top: -1px;
-    left: -50px;
-    width: 50px;
+    left: -55px;
+    width: 55px;
     height: 4px;
-    background: linear-gradient(90deg, transparent, rgba(0,220,255,0.9), transparent);
+    background: linear-gradient(90deg, transparent, rgba(0,220,130,0.95), transparent);
     border-radius: 2px;
     filter: blur(1px);
-    animation: ws-flow 2.2s linear infinite;
+    opacity: 0;
 }
-.ws-pconn.threat .ws-pconn-line::after {
-    background: linear-gradient(90deg, transparent, rgba(255,60,80,0.85), transparent);
-    animation-duration: 1.8s;
+.ws-pconn.ws-beam-go .ws-pconn-line::after {
+    opacity: 1;
+    animation: ws-beam-sweep 0.85s linear forwards;
 }
-.ws-pconn.pass .ws-pconn-line::after {
-    background: linear-gradient(90deg, transparent, rgba(0,220,130,0.9), transparent);
-    animation-duration: 2.8s;
-}
-/* Stagger the flow dots so they don't all pulse together */
-.ws-pconn:nth-of-type(2) .ws-pconn-line::after { animation-delay: 0s; }
-.ws-pconn:nth-of-type(4) .ws-pconn-line::after { animation-delay: 0.55s; }
-.ws-pconn:nth-of-type(6) .ws-pconn-line::after { animation-delay: 1.1s; }
-.ws-pconn:nth-of-type(8) .ws-pconn-line::after { animation-delay: 0.3s; }
-@keyframes ws-flow {
-    0%   { left: -50px; }
+@keyframes ws-beam-sweep {
+    0%   { left: -55px; }
     100% { left: 100%; }
 }
 .ws-pconn-head {
-    color: rgba(255,255,255,0.30);
+    color: rgba(0,220,130,0.45);
     font-size: 16px;
     line-height: 1;
     margin-left: 2px;
 }
-.ws-pconn-head.pass { color: rgba(0,220,130,0.55); }
 /* WonderShield — hero node */
 .ws-pnode-shield {
     background: linear-gradient(150deg, #5600ff 0%, #3200b8 100%);
@@ -440,35 +450,50 @@
 .ws-config-value { font-size: 17px; font-weight: 700; color: #5600FF; }
 .ws-config-sub { font-size: 11px; color: #a094c8; margin-top: 2px; }
 .ws-footer {
-    text-align: center;
-    padding: 20px;
+    background: linear-gradient(135deg, #0f0230 0%, #1a0452 100%);
+    padding: 28px 36px;
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    border-top: none;
+}
+.ws-footer-inner {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.ws-footer-logo {
+    height: 26px;
+    opacity: 0.80;
+    transition: opacity 0.2s;
+    display: block;
+}
+.ws-footer-logo:hover { opacity: 1; }
+.ws-footer-divider {
+    width: 1px;
+    height: 16px;
+    background: rgba(255,255,255,0.12);
+    flex-shrink: 0;
+}
+.ws-footer-text {
     font-family: 'Dosis', sans-serif;
     font-size: 11px;
     letter-spacing: 0.08em;
-    color: #c4b8e8;
     text-transform: uppercase;
-    border-top: 1px solid #ede9ff;
-    margin-top: 8px;
+    color: rgba(255,255,255,0.30);
 }
-.ws-footer a { color: #8b7fb8; text-decoration: none; }
-.ws-footer a:hover { color: #5600FF; }
+.ws-footer-text strong { color: rgba(255,255,255,0.50); font-weight: 600; }
 </style>
 
 <div id="wondershield-wrap">
     <!-- HEADER -->
     <div class="ws-header">
         <div class="ws-logo">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-                <defs>
-                    <linearGradient id="wm-admin-g" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%"   stop-color="#5600ff"/>
-                        <stop offset="60%"  stop-color="#247fff"/>
-                        <stop offset="100%" stop-color="#00dcff"/>
-                    </linearGradient>
-                </defs>
-                <polygon points="43.7,74 20.8,28 65.6,28" fill="none" stroke="url(#wm-admin-g)" stroke-width="5.5" stroke-linejoin="round" stroke-linecap="round"/>
-                <polygon points="57.3,74 34.4,28 79.2,28" fill="none" stroke="url(#wm-admin-g)" stroke-width="5.5" stroke-linejoin="round" stroke-linecap="round"/>
-            </svg>
+            <img src="<?php echo esc_url($ws_assets_url); ?>wm-icon.svg" alt="Wonder Media" width="44" height="44">
         </div>
         <div class="ws-header-text">
             <h1>WonderShield</h1>
@@ -487,46 +512,46 @@
     <div class="ws-layers">
         <div class="ws-pipeline">
 
-            <div class="ws-pnode">
+            <div class="ws-pnode" id="ws-node-internet">
                 <i class="fa-solid fa-globe ws-fa-icon"></i>
                 <div class="ws-pnode-name">Internet</div>
             </div>
 
-            <div class="ws-pconn threat">
-                <div class="ws-pconn-tag">Bots &amp; DDoS ✕</div>
+            <div class="ws-pconn" id="ws-conn-1">
+                <div class="ws-pconn-tag">Bots &amp; DDoS ✓</div>
                 <div class="ws-pconn-arrow">
                     <div class="ws-pconn-line"></div>
                     <div class="ws-pconn-head">›</div>
                 </div>
             </div>
 
-            <div class="ws-pnode">
+            <div class="ws-pnode" id="ws-node-cf">
                 <i class="fa-solid fa-cloud ws-fa-icon"></i>
                 <div class="ws-pnode-name">Cloudflare</div>
             </div>
 
-            <div class="ws-pconn threat">
-                <div class="ws-pconn-tag">Attacks ✕</div>
+            <div class="ws-pconn" id="ws-conn-2">
+                <div class="ws-pconn-tag">Attacks ✓</div>
                 <div class="ws-pconn-arrow">
                     <div class="ws-pconn-line"></div>
                     <div class="ws-pconn-head">›</div>
                 </div>
             </div>
 
-            <div class="ws-pnode">
+            <div class="ws-pnode" id="ws-node-ws">
                 <i class="fa-solid fa-server ws-fa-icon"></i>
                 <div class="ws-pnode-name">Web Server</div>
             </div>
 
-            <div class="ws-pconn threat">
-                <div class="ws-pconn-tag">Brute Force ✕</div>
+            <div class="ws-pconn" id="ws-conn-3">
+                <div class="ws-pconn-tag">Brute Force ✓</div>
                 <div class="ws-pconn-arrow">
                     <div class="ws-pconn-line"></div>
                     <div class="ws-pconn-head">›</div>
                 </div>
             </div>
 
-            <div class="ws-pnode ws-pnode-shield">
+            <div class="ws-pnode ws-pnode-shield" id="ws-node-shield">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="30" height="30" style="flex-shrink:0" class="ws-fa-icon" aria-hidden="true">
                     <defs>
                         <linearGradient id="wm-pipe-g" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -541,15 +566,15 @@
                 <div class="ws-pnode-badge">Final Defence</div>
             </div>
 
-            <div class="ws-pconn pass">
-                <div class="ws-pconn-tag pass">Verified ✓</div>
+            <div class="ws-pconn" id="ws-conn-4">
+                <div class="ws-pconn-tag">Verified ✓</div>
                 <div class="ws-pconn-arrow">
                     <div class="ws-pconn-line"></div>
-                    <div class="ws-pconn-head pass">›</div>
+                    <div class="ws-pconn-head">›</div>
                 </div>
             </div>
 
-            <div class="ws-pnode ws-pnode-site">
+            <div class="ws-pnode ws-pnode-site" id="ws-node-site">
                 <i class="fa-solid fa-circle-check ws-fa-icon"></i>
                 <div class="ws-pnode-name">Your Site</div>
             </div>
@@ -719,11 +744,46 @@
     </div>
 
     <div class="ws-footer">
-        WonderShield <?php echo WS_VERSION; ?> &nbsp;·&nbsp; <a href="https://wondermedia.co.uk" target="_blank">Wonder Media Ltd</a> &nbsp;·&nbsp; Protecting <?php echo esc_html(get_bloginfo('name')); ?>
+        <div class="ws-footer-inner">
+            <a href="https://wondermedia.co.uk" target="_blank" rel="noopener">
+                <img src="<?php echo esc_url($ws_assets_url); ?>wm-logo.svg" alt="Wonder Media" class="ws-footer-logo">
+            </a>
+            <div class="ws-footer-divider"></div>
+            <div class="ws-footer-text">WonderShield v<?php echo WS_VERSION; ?> &nbsp;·&nbsp; Protecting <strong><?php echo esc_html(get_bloginfo('name')); ?></strong></div>
+        </div>
     </div>
 </div>
 
 <script>
+/* Sequential beam + node shimmer animation */
+(function() {
+    var BEAM_MS    = 850;
+    var SHIMMER_MS = 450;
+    var GAP_MS     = 180;
+    var phases = [
+        { conn: 'ws-conn-1', node: 'ws-node-cf'     },
+        { conn: 'ws-conn-2', node: 'ws-node-ws'     },
+        { conn: 'ws-conn-3', node: 'ws-node-shield' },
+        { conn: 'ws-conn-4', node: 'ws-node-site'   },
+    ];
+    var i = 0;
+    function step() {
+        var p    = phases[i++ % phases.length];
+        var conn = document.getElementById(p.conn);
+        var node = document.getElementById(p.node);
+        conn.classList.add('ws-beam-go');
+        setTimeout(function() {
+            conn.classList.remove('ws-beam-go');
+            node.classList.add('ws-shimmer-go');
+            setTimeout(function() {
+                node.classList.remove('ws-shimmer-go');
+                setTimeout(step, GAP_MS);
+            }, SHIMMER_MS);
+        }, BEAM_MS);
+    }
+    step();
+})();
+
 document.getElementById('ws-load-more').addEventListener('click', function() {
     var btn = this;
     var offset = parseInt(btn.dataset.offset);

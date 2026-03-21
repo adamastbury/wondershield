@@ -11,7 +11,7 @@ add_action('admin_menu', function() {
         'manage_options',
         'wondershield',
         'ws_render_page',
-        'data:image/svg+xml;base64,' . base64_encode('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#5600ff"/><stop offset="100%" stop-color="#00dcff"/></linearGradient></defs><polygon points="43.7,74 20.8,28 65.6,28" fill="none" stroke="url(#g)" stroke-width="5" stroke-linejoin="round"/><polygon points="57.3,74 34.4,28 79.2,28" fill="none" stroke="url(#g)" stroke-width="5" stroke-linejoin="round"/></svg>'),
+        plugins_url('wm-icon.svg', WS_PLUGIN_DIR . 'wondershield.php'),
         30
     );
 });
