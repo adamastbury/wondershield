@@ -90,10 +90,18 @@ $ws_assets_url = WS_PLUGIN_URL;
     font-size: 32px;
     font-weight: 700;
     line-height: 1.2;
+    margin-bottom: 14px;
     background: linear-gradient(90deg, #5600ff 0%, #00dcff 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+}
+.ws-pipeline-intro-why-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f0230;
+    margin-bottom: 8px;
 }
 .ws-pipeline-intro-sub {
     font-size: 14px;
@@ -581,7 +589,8 @@ $ws_assets_url = WS_PLUGIN_URL;
     <!-- PIPELINE HEADING -on light lavender -->
     <div class="ws-pipeline-intro">
         <div class="ws-pipeline-intro-eyebrow">Defence in Depth</div>
-        <div class="ws-pipeline-intro-headline">Your site is protected by four layers - WonderShield is the final line of defence</div>
+        <div class="ws-pipeline-intro-headline">Your site is protected by four layers</div>
+        <div class="ws-pipeline-intro-why-title">WonderShield is the final line of defence</div>
         <div class="ws-pipeline-intro-sub">Real-time protection across brute force, DDoS, automated bots, credential stuffing, XML-RPC abuse, user enumeration and malicious probes - actively maintained and continuously hardened as the threat landscape evolves.</div>
     </div>
 
