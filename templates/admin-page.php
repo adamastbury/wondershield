@@ -104,7 +104,7 @@ $ws_assets_url = WS_PLUGIN_URL;
     border-radius: 16px;
     padding: 28px 32px 32px;
     margin: 16px 32px 0;
-    overflow: hidden;
+    overflow-x: auto;
     position: relative;
 }
 .ws-layers::before {
@@ -147,11 +147,6 @@ $ws_assets_url = WS_PLUGIN_URL;
     position: relative;
     z-index: 1;
     overflow: hidden;
-    transition: background 0.3s, border-color 0.3s;
-}
-.ws-pnode:hover {
-    background: rgba(255,255,255,0.15);
-    border-color: rgba(255,255,255,0.30);
 }
 /* Node shimmer pseudo-element (triggered by JS) */
 .ws-pnode::after {
@@ -256,6 +251,15 @@ $ws_assets_url = WS_PLUGIN_URL;
     line-height: 1;
     margin-left: 2px;
 }
+/* Pipeline narrow-viewport: keep it scrollable rather than wrapping/breaking */
+@media (max-width: 860px) {
+    .ws-layers { margin-left: 16px; margin-right: 16px; }
+    .ws-pipeline { min-width: 560px; }
+    .ws-pnode { padding: 14px 12px; min-width: 72px; }
+    .ws-pnode-shield { padding: 14px 16px; min-width: 90px; }
+    .ws-pconn { min-width: 32px; }
+    .ws-pconn-tag { font-size: 9px; padding: 3px 8px; }
+}
 /* WonderShield -hero node */
 .ws-pnode-shield {
     background: linear-gradient(150deg, #5600ff 0%, #3200b8 100%);
@@ -326,7 +330,7 @@ $ws_assets_url = WS_PLUGIN_URL;
 /* STATS */
 .ws-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 14px;
     margin-bottom: 28px;
 }
@@ -586,7 +590,7 @@ $ws_assets_url = WS_PLUGIN_URL;
     <!-- PIPELINE HEADING -on light lavender -->
     <div class="ws-pipeline-intro">
         <div class="ws-pipeline-intro-eyebrow">Defence in Depth</div>
-        <div class="ws-pipeline-intro-headline">Your site is protected by 4 layers -<span class="ws-headline-accent">WonderShield</span> is the final line of defence</div>
+        <div class="ws-pipeline-intro-headline">Your site is protected by four layers -<span class="ws-headline-accent">WonderShield</span> is the final line of defence</div>
     </div>
 
     <!-- SECURITY PIPELINE -->
