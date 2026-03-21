@@ -20,13 +20,18 @@ $ws_assets_url = WS_PLUGIN_URL;
     flex-direction: column;
 }
 .ws-header {
-    background: linear-gradient(135deg, #0f0230 0%, #2d0a6e 100%);
+    /* Deep navy base with vivid purple orb top-right — matches Wonder Media hero */
+    background:
+        radial-gradient(ellipse 70% 180% at 105% -20%, rgba(86,0,255,0.60) 0%, transparent 60%),
+        radial-gradient(ellipse 45% 100% at -5%  90%, rgba(0,60,200,0.18) 0%, transparent 55%),
+        #0f0230;
     border-radius: 16px 0 24px 24px;
     padding: 32px 36px 28px;
     display: flex;
     align-items: center;
     gap: 16px;
     margin-bottom: 0;
+    position: relative;
 }
 .ws-logo {
     width: 48px; height: 48px;
@@ -38,7 +43,7 @@ $ws_assets_url = WS_PLUGIN_URL;
 }
 .ws-logo img { width: 44px; height: 44px; object-fit: contain; }
 .ws-header-text h1 {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: 800;
     margin: 0;
     background: linear-gradient(90deg, #5600ff 0%, #00dcff 100%);
@@ -91,7 +96,11 @@ $ws_assets_url = WS_PLUGIN_URL;
 }
 /* SECURITY PIPELINE */
 .ws-layers {
-    background: linear-gradient(135deg, #0a0120 0%, #170340 55%, #0a0120 100%);
+    /* Same orb-based approach as WM website — creates depth rather than flat gradient */
+    background:
+        radial-gradient(ellipse 50% 160% at 100% 50%, rgba(86,0,255,0.35) 0%, transparent 60%),
+        radial-gradient(ellipse 35% 120% at  0%  50%, rgba(0,40,160,0.15) 0%, transparent 55%),
+        #080118;
     border-radius: 16px;
     padding: 28px 32px 32px;
     margin: 16px 32px 0;
