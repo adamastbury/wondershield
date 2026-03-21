@@ -15,7 +15,6 @@ $ws_assets_url = WS_PLUGIN_URL;
     margin: -20px -20px 0 -2px;
     padding: 0;
     color: #0f0230;
-    overflow-x: hidden;
     display: flex;
     flex-direction: column;
 }
@@ -104,7 +103,7 @@ $ws_assets_url = WS_PLUGIN_URL;
     border-radius: 16px;
     padding: 28px 32px 32px;
     margin: 16px 32px 0;
-    overflow-x: auto;
+    overflow: hidden;
     position: relative;
 }
 .ws-layers::before {
@@ -251,14 +250,21 @@ $ws_assets_url = WS_PLUGIN_URL;
     line-height: 1;
     margin-left: 2px;
 }
-/* Pipeline narrow-viewport: keep it scrollable rather than wrapping/breaking */
-@media (max-width: 860px) {
+/* Pipeline narrow-viewport: hide connector tags + shrink nodes so it stays on one line */
+@media (max-width: 900px) {
     .ws-layers { margin-left: 16px; margin-right: 16px; }
-    .ws-pipeline { min-width: 560px; }
-    .ws-pnode { padding: 14px 12px; min-width: 72px; }
-    .ws-pnode-shield { padding: 14px 16px; min-width: 90px; }
-    .ws-pconn { min-width: 32px; }
-    .ws-pconn-tag { font-size: 9px; padding: 3px 8px; }
+    .ws-pconn-tag { display: none; }
+    .ws-pnode { padding: 14px 10px; min-width: 68px; }
+    .ws-pnode-shield { padding: 14px 14px; min-width: 88px; }
+    .ws-pconn { min-width: 24px; }
+    .ws-fa-icon { font-size: 22px; }
+    .ws-pnode-name { font-size: 9px; }
+}
+@media (max-width: 640px) {
+    .ws-pnode { padding: 10px 8px; min-width: 54px; }
+    .ws-pnode-shield { padding: 10px 10px; min-width: 70px; }
+    .ws-fa-icon { font-size: 18px; }
+    .ws-pnode-badge { display: none; }
 }
 /* WonderShield -hero node */
 .ws-pnode-shield {
