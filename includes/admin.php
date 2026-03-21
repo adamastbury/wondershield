@@ -2,6 +2,35 @@
 if (!defined('ABSPATH')) exit;
 
 // ============================================================
+// MUST-USE LOCK
+// ============================================================
+
+// Remove Deactivate and Delete links from the plugins list UI
+add_filter('plugin_action_links_' . plugin_basename(WS_PLUGIN_DIR . 'wondershield.php'), function($links) {
+    unset($links['deactivate']);
+    unset($links['delete']);
+    return $links;
+});
+
+// Re-activate silently if removed via DB edit, WP-CLI, or any other method
+add_filter('pre_update_option_active_plugins', function($new_value, $old_value) {
+    $plugin = plugin_basename(WS_PLUGIN_DIR . 'wondershield.php');
+    if (!in_array($plugin, (array) $new_value, true)) {
+        $new_value[] = $plugin;
+    }
+    return $new_value;
+}, 10, 2);
+
+// Show a branded notice below the plugin row explaining why it can't be deactivated
+add_action('after_plugin_row_' . plugin_basename(WS_PLUGIN_DIR . 'wondershield.php'), function() {
+    echo '<tr class="plugin-update-tr active"><td colspan="5" class="plugin-update colspanchange">'
+       . '<div class="notice inline notice-alt" style="margin:0;padding:8px 14px;background:rgba(86,0,255,0.05);border-left:3px solid #5600ff;">'
+       . '<p style="margin:0;font-size:12px;color:#3d2a7a;font-family:sans-serif;">'
+       . '<strong style="color:#5600ff;">Required plugin</strong> &mdash; WonderShield is a mandatory security plugin and cannot be deactivated or removed.'
+       . '</p></div></td></tr>';
+});
+
+// ============================================================
 // ADMIN MENU
 // ============================================================
 add_action('admin_menu', function() {
