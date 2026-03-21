@@ -4,9 +4,9 @@ $ws_assets_url = WS_PLUGIN_URL;
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Dosis:wght@600&display=swap');
-/* Prevent the WP admin content area from scrolling sideways */
+/* Prevent the WP admin content area from scrolling sideways, remove bottom padding so footer touches window edge */
 .wp-admin #wpbody-content,
-.wp-admin #wpbody { overflow-x: hidden; }
+.wp-admin #wpbody { overflow-x: hidden; padding-bottom: 0 !important; }
 #wondershield-wrap * { box-sizing: border-box; }
 #wondershield-wrap {
     font-family: 'Plus Jakarta Sans', sans-serif;
@@ -16,10 +16,12 @@ $ws_assets_url = WS_PLUGIN_URL;
     padding: 0;
     color: #0f0230;
     overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
 }
 .ws-header {
     background: linear-gradient(135deg, #0f0230 0%, #2d0a6e 100%);
-    border-radius: 0 0 24px 24px;
+    border-radius: 16px 0 24px 24px;
     padding: 32px 36px 28px;
     display: flex;
     align-items: center;
@@ -39,7 +41,7 @@ $ws_assets_url = WS_PLUGIN_URL;
     font-size: 24px;
     font-weight: 800;
     margin: 0;
-    background: linear-gradient(90deg, #fff 30%, #00DCFF);
+    background: linear-gradient(90deg, #5600ff 0%, #00dcff 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -51,7 +53,7 @@ $ws_assets_url = WS_PLUGIN_URL;
     font-size: 11px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: rgba(0,220,255,0.55);
+    color: rgba(0,220,255,0.80);
     margin: 6px 0 0;
     padding: 0;
 }
@@ -64,7 +66,7 @@ $ws_assets_url = WS_PLUGIN_URL;
     text-transform: uppercase;
     align-self: flex-start;
 }
-/* PIPELINE INTRO — on light lavender */
+/* PIPELINE INTRO -on light lavender */
 .ws-pipeline-intro {
     background: #f4f3ff;
     padding: 36px 32px 20px;
@@ -147,7 +149,7 @@ $ws_assets_url = WS_PLUGIN_URL;
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, transparent 0%, rgba(0,220,130,0.30) 50%, transparent 100%);
+    background: linear-gradient(90deg, transparent 0%, rgba(0,220,255,0.22) 50%, transparent 100%);
     transform: translateX(-110%);
     pointer-events: none;
     border-radius: inherit;
@@ -158,7 +160,7 @@ $ws_assets_url = WS_PLUGIN_URL;
     animation: ws-node-shimmer 0.45s ease-out forwards;
 }
 .ws-pnode-shield.ws-shimmer-go::after {
-    background: linear-gradient(90deg, transparent 0%, rgba(0,220,130,0.45) 50%, transparent 100%);
+    background: linear-gradient(90deg, transparent 0%, rgba(0,220,255,0.35) 50%, transparent 100%);
 }
 @keyframes ws-node-shimmer {
     0%   { transform: translateX(-110%); opacity: 1; }
@@ -178,7 +180,7 @@ $ws_assets_url = WS_PLUGIN_URL;
     color: rgba(255,255,255,0.90);
     white-space: nowrap;
 }
-/* Connector — stretches to fill available space */
+/* Connector -stretches to fill available space */
 .ws-pconn {
     display: flex;
     flex-direction: column;
@@ -188,21 +190,21 @@ $ws_assets_url = WS_PLUGIN_URL;
     min-width: 52px;
     padding: 0 4px;
 }
-/* All connector tags are green — protection is active everywhere */
+/* All connector tags use Wonder Media teal -protection active */
 .ws-pconn-tag {
     font-family: 'Dosis', sans-serif;
     font-size: 11px;
     font-weight: 800;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: #00e090;
-    background: rgba(0,200,120,0.12);
-    border: 1px solid rgba(0,220,130,0.35);
+    color: #00dcff;
+    background: rgba(0,220,255,0.10);
+    border: 1px solid rgba(0,220,255,0.28);
     border-radius: 20px;
     padding: 5px 12px;
     white-space: nowrap;
-    box-shadow: 0 0 14px rgba(0,200,100,0.18), inset 0 0 6px rgba(0,200,100,0.06);
-    text-shadow: 0 0 10px rgba(0,220,130,0.4);
+    box-shadow: 0 0 14px rgba(0,220,255,0.18), inset 0 0 6px rgba(0,220,255,0.06);
+    text-shadow: 0 0 10px rgba(0,220,255,0.4);
 }
 /* Horizontal line + arrowhead */
 .ws-pconn-arrow {
@@ -218,7 +220,7 @@ $ws_assets_url = WS_PLUGIN_URL;
     overflow: hidden;
     border-radius: 1px;
 }
-/* Beam — hidden by default, JS adds ws-beam-go to fire it */
+/* Beam -hidden by default, JS adds ws-beam-go to fire it */
 .ws-pconn-line::after {
     content: '';
     position: absolute;
@@ -226,7 +228,7 @@ $ws_assets_url = WS_PLUGIN_URL;
     left: -55px;
     width: 55px;
     height: 4px;
-    background: linear-gradient(90deg, transparent, rgba(0,220,130,0.95), transparent);
+    background: linear-gradient(90deg, transparent, rgba(0,220,255,0.95), transparent);
     border-radius: 2px;
     filter: blur(1px);
     opacity: 0;
@@ -240,12 +242,12 @@ $ws_assets_url = WS_PLUGIN_URL;
     100% { left: 100%; }
 }
 .ws-pconn-head {
-    color: rgba(0,220,130,0.45);
+    color: rgba(0,220,255,0.45);
     font-size: 16px;
     line-height: 1;
     margin-left: 2px;
 }
-/* WonderShield — hero node */
+/* WonderShield -hero node */
 .ws-pnode-shield {
     background: linear-gradient(150deg, #5600ff 0%, #3200b8 100%);
     border: 1px solid rgba(0,220,255,0.35);
@@ -285,13 +287,13 @@ $ws_assets_url = WS_PLUGIN_URL;
 }
 /* Your Site */
 .ws-pnode-site {
-    background: rgba(0,180,100,0.10);
-    border-color: rgba(0,220,130,0.28);
+    background: rgba(0,220,255,0.08);
+    border-color: rgba(0,220,255,0.22);
 }
-.ws-pnode-site .ws-pnode-name { color: #00e090; }
+.ws-pnode-site .ws-pnode-name { color: #00dcff; }
 .ws-pnode-site .ws-fa-icon {
-    color: #00e090;
-    filter: drop-shadow(0 0 8px rgba(0,200,120,0.5));
+    color: #00dcff;
+    filter: drop-shadow(0 0 8px rgba(0,220,255,0.5));
 }
 @keyframes ws-shield-pulse {
     0%, 100% {
@@ -302,7 +304,7 @@ $ws_assets_url = WS_PLUGIN_URL;
     }
 }
 /* BODY */
-.ws-body { padding: 28px 32px 32px; }
+.ws-body { padding: 28px 32px 32px; flex: 1; }
 .ws-notice {
     background: #f0fdf4;
     border: 1px solid #86efac;
@@ -357,7 +359,7 @@ $ws_assets_url = WS_PLUGIN_URL;
     transition: opacity 0.22s;
 }
 .ws-stat:hover::before { opacity: 1; }
-/* All stat numbers use the Wonder Media brand gradient — consistent and on-brand */
+/* All stat numbers use the Wonder Media brand gradient -consistent and on-brand */
 .ws-stat-value {
     font-size: 34px;
     font-weight: 800;
@@ -513,7 +515,7 @@ $ws_assets_url = WS_PLUGIN_URL;
 }
 .ws-load-more:hover { background: #f0eeff; color: #5600FF; }
 /* CONFIG GRID */
-.ws-config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; padding: 20px; }
+.ws-config-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; padding: 20px; }
 .ws-config-item { background: #faf9ff; border: 1px solid #ede9ff; border-radius: 10px; padding: 14px 16px; }
 .ws-config-label { font-family: 'Dosis', sans-serif; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: #8b7fb8; margin-bottom: 5px; }
 .ws-config-value { font-size: 17px; font-weight: 700; color: #5600FF; }
@@ -572,10 +574,10 @@ $ws_assets_url = WS_PLUGIN_URL;
         <div class="ws-version">v<?php echo WS_VERSION; ?></div>
     </div>
 
-    <!-- PIPELINE HEADING — on light lavender -->
+    <!-- PIPELINE HEADING -on light lavender -->
     <div class="ws-pipeline-intro">
         <div class="ws-pipeline-intro-eyebrow">Defence in Depth</div>
-        <div class="ws-pipeline-intro-headline">Your site is protected by 4 layers — <span class="ws-headline-accent">WonderShield</span> is the final line of defence</div>
+        <div class="ws-pipeline-intro-headline">Your site is protected by 4 layers -<span class="ws-headline-accent">WonderShield</span> is the final line of defence</div>
     </div>
 
     <!-- SECURITY PIPELINE -->
@@ -700,7 +702,7 @@ $ws_assets_url = WS_PLUGIN_URL;
                 <span class="ws-count-badge"><?php echo count($active_blocks); ?> active</span>
             </div>
             <?php if (empty($active_blocks)): ?>
-                <div class="ws-empty"><i class="fa-solid fa-circle-check ws-empty-icon"></i>No active blocks — all clear.</div>
+                <div class="ws-empty"><i class="fa-solid fa-circle-check ws-empty-icon"></i>No active blocks -all clear.</div>
             <?php else: ?>
             <table class="ws-table">
                 <thead>
@@ -779,11 +781,6 @@ $ws_assets_url = WS_PLUGIN_URL;
                     <div class="ws-config-label">User Enumeration</div>
                     <div class="ws-config-value">Blocked</div>
                     <div class="ws-config-sub">?author= &amp; REST API</div>
-                </div>
-                <div class="ws-config-item">
-                    <div class="ws-config-label">Notify Email</div>
-                    <div class="ws-config-value ws-config-email"><?php echo esc_html(WS_NOTIFY_EMAIL); ?></div>
-                    <div class="ws-config-sub">on block events</div>
                 </div>
             </div>
         </div>

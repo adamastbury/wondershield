@@ -30,6 +30,11 @@ add_action('after_plugin_row_' . plugin_basename(WS_PLUGIN_DIR . 'wondershield.p
        . '</p></div></td></tr>';
 });
 
+// Fix sidebar menu icon size (image URLs aren't auto-constrained by WP)
+add_action('admin_head', function() {
+    echo '<style>#adminmenu #toplevel_page_wondershield .wp-menu-image img{width:20px!important;height:20px!important;opacity:.85;}</style>';
+});
+
 // ============================================================
 // ADMIN MENU
 // ============================================================
