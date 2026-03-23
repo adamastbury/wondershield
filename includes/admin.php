@@ -169,8 +169,9 @@ function ws_render_page() {
     $logs = $wpdb->get_results(
         "SELECT * FROM " . WS_TABLE_LOG . " ORDER BY created_at DESC LIMIT 50"
     );
-    $unblocked = isset($_GET['unblocked']);
-    $ws_connected    = !empty(get_option('ws_central_site_id')) && !empty(get_option('ws_central_api_key'));
-    $ws_reconnecting = false;
+    $unblocked         = isset($_GET['unblocked']);
+    $ws_connected      = !empty(get_option('ws_central_site_id')) && !empty(get_option('ws_central_api_key'));
+    $ws_reconnecting   = false;
+    $ws_central_error  = get_option('ws_central_last_error', '');
     include WS_PLUGIN_DIR . 'templates/admin-page.php';
 }

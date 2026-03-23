@@ -169,7 +169,9 @@ function ws_central_send_heartbeat($blocking = false) {
         ]);
 
         if (is_wp_error($result)) {
-            error_log('[WonderShield Central] Heartbeat error: ' . $result->get_error_message());
+            $msg = 'WP error: ' . $result->get_error_message();
+            error_log('[WonderShield Central] Heartbeat error: ' . $msg);
+            update_option('ws_central_last_error', $msg, false);
             return null;
         }
 
@@ -179,11 +181,16 @@ function ws_central_send_heartbeat($blocking = false) {
 
         $code = wp_remote_retrieve_response_code($result);
         if ($code === 401) {
+            $msg = 'HTTP 401 — credentials rejected (secret mismatch or invalid api_key)';
             error_log('[WonderShield Central] Heartbeat 401 — credentials rejected');
+            update_option('ws_central_last_error', $msg, false);
             return false;
         }
         if ($code < 200 || $code >= 300) {
+            $body_preview = substr(wp_remote_retrieve_body($result), 0, 200);
+            $msg = 'HTTP ' . $code . ' — ' . $body_preview;
             error_log('[WonderShield Central] Heartbeat HTTP ' . $code);
+            update_option('ws_central_last_error', $msg, false);
             return null;
         }
 
@@ -192,10 +199,20 @@ function ws_central_send_heartbeat($blocking = false) {
         }
 
         $decoded = json_decode(wp_remote_retrieve_body($result), true);
-        return is_array($decoded) ? $decoded : null;
+        if (!is_array($decoded)) {
+            $msg = 'Invalid JSON response from central';
+            update_option('ws_central_last_error', $msg, false);
+            return null;
+        }
+
+        // Clear any previous error on success
+        delete_option('ws_central_last_error');
+        return $decoded;
 
     } catch (\Throwable $e) {
-        error_log('[WonderShield Central] Heartbeat exception: ' . $e->getMessage());
+        $msg = 'Exception: ' . $e->getMessage();
+        error_log('[WonderShield Central] Heartbeat exception: ' . $msg);
+        update_option('ws_central_last_error', $msg, false);
         return null;
     }
 }

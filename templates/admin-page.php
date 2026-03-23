@@ -603,6 +603,11 @@ $ws_assets_url = WS_PLUGIN_URL;
             </form>
         </div>
     </div>
+    <?php if (!$ws_connected && !empty($ws_central_error)): ?>
+    <div style="background:rgba(255,80,80,0.12);border-left:3px solid #ff5050;padding:8px 36px;font-size:11px;font-family:'Dosis',sans-serif;color:rgba(255,180,180,0.9);letter-spacing:0.05em;">
+        Last connection error: <?php echo esc_html($ws_central_error); ?>
+    </div>
+    <?php endif; ?>
 
     <!-- PIPELINE HEADING -on light lavender -->
     <div class="ws-pipeline-intro">
