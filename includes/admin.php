@@ -58,7 +58,9 @@ function ws_handle_reconnect() {
     if (!current_user_can('manage_options')) wp_die('Forbidden');
     check_admin_referer('ws_reconnect');
     ws_central_reset();
-    wp_redirect(admin_url('admin.php?page=wondershield&reconnecting=1'));
+    // Re-register synchronously right here — no page-load tricks needed.
+    ws_central_maybe_register();
+    wp_redirect(admin_url('admin.php?page=wondershield'));
     exit;
 }
 
@@ -160,12 +162,6 @@ function ws_render_page() {
     global $wpdb;
     if (!current_user_can('manage_options')) return;
 
-    // If we just reconnected and registration succeeded, bounce to the clean URL.
-    if (isset($_GET['reconnecting']) && !empty(get_option('ws_central_api_key'))) {
-        wp_redirect(admin_url('admin.php?page=wondershield'));
-        exit;
-    }
-
     $stats = ws_get_stats();
     $active_blocks = $wpdb->get_results(
         "SELECT * FROM " . WS_TABLE_BLOCKS . " WHERE expires_at > NOW() ORDER BY blocked_at DESC"
@@ -174,7 +170,7 @@ function ws_render_page() {
         "SELECT * FROM " . WS_TABLE_LOG . " ORDER BY created_at DESC LIMIT 50"
     );
     $unblocked = isset($_GET['unblocked']);
-    $ws_connected  = !empty(get_option('ws_central_site_id')) && !empty(get_option('ws_central_api_key'));
-    $ws_reconnecting = isset($_GET['reconnecting']);
+    $ws_connected    = !empty(get_option('ws_central_site_id')) && !empty(get_option('ws_central_api_key'));
+    $ws_reconnecting = false;
     include WS_PLUGIN_DIR . 'templates/admin-page.php';
 }
