@@ -76,8 +76,9 @@ add_action('ws_central_heartbeat', 'ws_central_run_heartbeat');
 function ws_central_run_heartbeat() {
     $response = ws_central_send_heartbeat(true); // blocking so we can detect auth failures
     if ($response === false) {
-        // Central rejected our credentials — clear and re-register on next page load
+        // Central rejected our credentials — reset and re-register immediately
         ws_central_reset();
+        ws_central_maybe_register();
         return;
     }
     if ($response && !empty($response['api_key'])) {
