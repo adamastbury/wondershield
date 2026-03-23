@@ -376,6 +376,12 @@ function ws_central_force_update($command_id, $target_version) {
         require_once ABSPATH . 'wp-admin/includes/misc.php';
         require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
+        // Clear the cached GitHub release so the upgrader fetches the latest
+        // version fresh — without this, a cached response showing the current
+        // version causes Plugin_Upgrader to silently skip the update.
+        delete_site_transient('wondershield_github_release');
+        delete_site_transient('update_plugins');
+
         $upgrader = new Plugin_Upgrader(new Automatic_Upgrader_Skin());
         $result   = $upgrader->upgrade('wondershield/wondershield.php');
 
