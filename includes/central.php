@@ -376,11 +376,22 @@ function ws_central_force_update($command_id, $target_version) {
         require_once ABSPATH . 'wp-admin/includes/misc.php';
         require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
-        // Clear the cached GitHub release so the upgrader fetches the latest
-        // version fresh — without this, a cached response showing the current
-        // version causes Plugin_Upgrader to silently skip the update.
+        // Plugin_Upgrader::upgrade() checks the update_plugins transient and
+        // silently returns false if our plugin isn't in response[]. This happens
+        // when the GitHub release cache still shows the current version as latest.
+        //
+        // Fix: clear the GitHub cache so our updater hook fetches fresh, then
+        // ensure the plugin is in checked[] so the hook actually evaluates it
+        // (the hook bails early when checked is empty).
         delete_site_transient('wondershield_github_release');
-        delete_site_transient('update_plugins');
+        $update_transient = get_site_transient('update_plugins');
+        if ( ! is_object( $update_transient ) ) $update_transient = new stdClass();
+        if ( ! isset( $update_transient->checked ) )  $update_transient->checked  = [];
+        if ( ! isset( $update_transient->response ) )  $update_transient->response  = [];
+        if ( ! isset( $update_transient->no_update ) ) $update_transient->no_update = [];
+        $update_transient->checked['wondershield/wondershield.php'] = WS_VERSION;
+        unset( $update_transient->no_update['wondershield/wondershield.php'] );
+        set_site_transient( 'update_plugins', $update_transient );
 
         $upgrader = new Plugin_Upgrader(new Automatic_Upgrader_Skin());
         $result   = $upgrader->upgrade('wondershield/wondershield.php');
