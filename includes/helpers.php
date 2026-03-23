@@ -35,9 +35,17 @@ function ws_activate() {
     if (!wp_next_scheduled('ws_daily_cleanup')) {
         wp_schedule_event(time(), 'daily', 'ws_daily_cleanup');
     }
+    if (!wp_next_scheduled('ws_central_heartbeat')) {
+        wp_schedule_event(time(), 'ws_five_minutes', 'ws_central_heartbeat');
+    }
+    if (!wp_next_scheduled('ws_central_check')) {
+        wp_schedule_event(time(), 'ws_five_minutes', 'ws_central_check');
+    }
 }
 function ws_deactivate() {
     wp_clear_scheduled_hook('ws_daily_cleanup');
+    wp_clear_scheduled_hook('ws_central_heartbeat');
+    wp_clear_scheduled_hook('ws_central_check');
 }
 
 // ============================================================
@@ -109,6 +117,7 @@ function ws_log($ip, $event_type, $path, $user_agent = '') {
         'user_agent' => substr($user_agent, 0, 500),
         'created_at' => current_time('mysql'),
     ], ['%s','%s','%s','%s','%s']);
+    do_action('ws_event', $event_type, $ip, $path, $user_agent);
 }
 function ws_send_notification($ip, $reason) {
     $subject = '[WonderShield] IP Blocked: ' . $ip;
