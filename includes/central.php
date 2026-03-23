@@ -261,45 +261,6 @@ function ws_central_flush_events() {
 }
 
 // ============================================================
-// REST TRIGGER ENDPOINT
-// Allows WonderShield Central to push heartbeat + update checks
-// directly, bypassing wp-cron (which is disabled on all sites).
-// POST /wp-json/wondershield/v1/trigger
-// Authorization: Bearer <ws_central_api_key>
-// ============================================================
-add_action('rest_api_init', function () {
-    register_rest_route('wondershield/v1', '/trigger', [
-        'methods'             => 'POST',
-        'callback'            => 'ws_central_handle_trigger',
-        'permission_callback' => 'ws_central_verify_trigger_auth',
-    ]);
-});
-
-function ws_central_verify_trigger_auth(WP_REST_Request $request): bool {
-    $header = $request->get_header('authorization');
-    if (!$header || strpos($header, 'Bearer ') !== 0) return false;
-    $token   = substr($header, 7);
-    $api_key = get_option('ws_central_api_key', '');
-    return $api_key && hash_equals($api_key, $token);
-}
-
-function ws_central_handle_trigger(WP_REST_Request $request): WP_REST_Response {
-    $response = ws_central_send_heartbeat(true);
-    if ($response && !empty($response['api_key'])) {
-        update_option('ws_central_api_key', $response['api_key'], false);
-    }
-    if ($response && !empty($response['force_update']) && $response['force_update'] === true) {
-        ws_central_force_update(
-            $response['command_id'] ?? null,
-            $response['target_version'] ?? null
-        );
-    } else {
-        ws_central_check_for_update();
-    }
-    return new WP_REST_Response(['ok' => true], 200);
-}
-
-// ============================================================
 // FORCE UPDATE
 // ============================================================
 function ws_central_force_update($command_id, $target_version) {
