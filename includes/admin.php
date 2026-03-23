@@ -159,6 +159,13 @@ function ws_render_log_row($log) {
 function ws_render_page() {
     global $wpdb;
     if (!current_user_can('manage_options')) return;
+
+    // If we just reconnected and registration succeeded, bounce to the clean URL.
+    if (isset($_GET['reconnecting']) && !empty(get_option('ws_central_api_key'))) {
+        wp_redirect(admin_url('admin.php?page=wondershield'));
+        exit;
+    }
+
     $stats = ws_get_stats();
     $active_blocks = $wpdb->get_results(
         "SELECT * FROM " . WS_TABLE_BLOCKS . " WHERE expires_at > NOW() ORDER BY blocked_at DESC"
