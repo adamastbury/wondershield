@@ -72,6 +72,10 @@ function ws_central_maybe_register( $depth = 0 ) {
     if ($response && !empty($response['api_key'])) {
         update_option('ws_central_api_key', $response['api_key'], false);
         update_option('ws_central_validated_at', time(), false);
+        // Central may return a corrected site_id if our UUID drifted (domain conflict resolved)
+        if (!empty($response['site_id'])) {
+            update_option('ws_central_site_id', $response['site_id'], false);
+        }
     }
     // On failure, leave site_id in place so the next page load retries
     // with the same UUID rather than generating a new one each time.
