@@ -80,13 +80,26 @@ add_action('init', function() {
 
     // Matched anywhere in the path — these strings never appear in real content URLs
     $probe_contains = [
-        '/.env',           // .env files in any directory
-        '/.git/',          // git repository contents
-        '/.aws/',          // AWS credential files
-        '/.ssh/',          // SSH key files
-        'wp-config.php.',  // wp-config backup files (.bak, .old, etc.)
-        '/.htpasswd',      // Apache password files
-        '/etc/passwd',     // Unix password file
+        '/.env',                 // .env files in any directory
+        '/.git/',                // git repository contents
+        '/.aws/',                // AWS credential directory
+        '/.ssh/',                // SSH key files
+        'wp-config.php.',        // wp-config backup files (.bak, .old, etc.)
+        '/.htpasswd',            // Apache password files
+        '/etc/passwd',           // Unix password file
+        // AWS credential & infrastructure config files
+        'aws_credentials',       // aws_credentials.json, aws/credentials.json
+        'aws_secret_access_key', // aws_secret_access_key.txt
+        'aws_access_key_id',     // aws_access_key_id.txt
+        '.tfvars',               // Terraform variable files (terraform.tfvars, etc.)
+        '/.serverless/',         // Serverless Framework config directory
+        '/.elasticbeanstalk/',   // AWS Elastic Beanstalk config directory
+        '/.aws-sam/',            // AWS SAM config directory
+        // Key and certificate files
+        '/.vault-token',         // HashiCorp Vault token file
+        '.pem',                  // Private key / certificate files
+        // Email service credential files
+        'mandrill.',             // mandrill.json, mandrill.yml (dot avoids matching blog slugs)
     ];
     // Matched only at the start of the path — avoids false-positives on URL slugs
     // e.g. /server-status is the Apache page, but /blog/server-status-update/ is a real post
