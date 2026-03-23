@@ -314,6 +314,31 @@ function ws_central_flush_events() {
 }
 
 // ============================================================
+// REST TRIGGER ENDPOINT
+// Called directly by WonderShield Central on update push for instant delivery.
+// ============================================================
+add_action('rest_api_init', function() {
+    register_rest_route('wondershield/v1', '/trigger', [
+        'methods'             => 'POST',
+        'callback'            => 'ws_central_handle_trigger',
+        'permission_callback' => '__return_true',
+    ]);
+});
+
+function ws_central_handle_trigger(WP_REST_Request $request) {
+    $auth    = $request->get_header('Authorization');
+    $token   = preg_replace('/^Bearer\s+/i', '', $auth ?? '');
+    $api_key = get_option('ws_central_api_key');
+
+    if (empty($api_key) || !hash_equals($api_key, $token)) {
+        return new WP_REST_Response(['error' => 'Unauthorized'], 401);
+    }
+
+    ws_central_check_for_update();
+    return new WP_REST_Response(['ok' => true], 200);
+}
+
+// ============================================================
 // FORCE UPDATE
 // ============================================================
 function ws_central_force_update($command_id, $target_version) {
@@ -324,14 +349,11 @@ function ws_central_force_update($command_id, $target_version) {
     ws_central_send_update_report($site_id, $api_key, $command_id, 'updating', $old_version, null, null);
 
     try {
-        if (!class_exists('WP_Upgrader')) {
-            require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-        }
-        if (!class_exists('WP_Upgrader_Skin')) {
-            require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-        }
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+        require_once ABSPATH . 'wp-admin/includes/misc.php';
+        require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
-        $upgrader = new Plugin_Upgrader(new WP_Upgrader_Skin());
+        $upgrader = new Plugin_Upgrader(new Automatic_Upgrader_Skin());
         $result   = $upgrader->upgrade('wondershield/wondershield.php');
 
         if ($result === true) {
