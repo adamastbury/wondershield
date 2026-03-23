@@ -17,7 +17,7 @@ class WonderShield_Updater {
     private $github_response;
 
     const CACHE_KEY = 'wondershield_github_release';
-    const CACHE_TTL = 5 * MINUTE_IN_SECONDS;
+    const CACHE_TTL = 30;
 
     public function __construct($plugin_file) {
         $this->plugin_file     = $plugin_file;
