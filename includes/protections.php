@@ -145,6 +145,9 @@ add_action('init', function() {
         $secs = max(0, (new DateTime($block->expires_at, new DateTimeZone('UTC')))->getTimestamp() - time());
         ws_block_response('Your IP has been temporarily blocked due to repeated failed login attempts.', $ip, $secs);
     }
+    // Don't count password reset steps as login attempts
+    $action = $_REQUEST['action'] ?? '';
+    if (in_array($action, ['lostpassword', 'rp', 'resetpass'], true)) return;
     ws_log($ip, 'attempt', $uri, $_SERVER['HTTP_USER_AGENT'] ?? '');
     $attempts = ws_count_recent_attempts($ip, '%wp-login%', WS_ATTEMPT_WINDOW);
     if ($attempts >= WS_MAX_ATTEMPTS) {
