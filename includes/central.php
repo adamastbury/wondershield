@@ -25,8 +25,16 @@ add_filter('cron_schedules', function ($s) {
  */
 add_action('plugins_loaded', 'ws_central_maybe_register', 20);
 function ws_central_maybe_register() {
-    if (get_option('ws_central_site_id')) {
-        return; // Already registered
+    $site_id = get_option('ws_central_site_id');
+    $api_key = get_option('ws_central_api_key');
+
+    if ($site_id && $api_key) {
+        return; // Fully registered
+    }
+
+    // Partial registration (site_id saved but no api_key) — start fresh
+    if ($site_id) {
+        delete_option('ws_central_site_id');
     }
 
     $site_id = wp_generate_uuid4();
@@ -35,6 +43,10 @@ function ws_central_maybe_register() {
     $response = ws_central_send_heartbeat(true); // blocking, uses REGISTRATION_SECRET
     if ($response && !empty($response['api_key'])) {
         update_option('ws_central_api_key', $response['api_key'], false);
+    } else {
+        // Registration failed — clear site_id so next page load retries
+        delete_option('ws_central_site_id');
+        return;
     }
 
     // Schedule crons now (activation hook may have run before central.php existed)
@@ -46,12 +58,28 @@ function ws_central_maybe_register() {
     }
 }
 
+/**
+ * Clear all central registration state so the next page load re-registers.
+ */
+function ws_central_reset() {
+    delete_option('ws_central_site_id');
+    delete_option('ws_central_api_key');
+    delete_option('ws_central_event_queue');
+    delete_option('ws_central_last_event_push');
+    delete_transient('ws_central_pending_update_report');
+}
+
 // ============================================================
 // HEARTBEAT CRON
 // ============================================================
 add_action('ws_central_heartbeat', 'ws_central_run_heartbeat');
 function ws_central_run_heartbeat() {
-    $response = ws_central_send_heartbeat(false);
+    $response = ws_central_send_heartbeat(true); // blocking so we can detect auth failures
+    if ($response === false) {
+        // Central rejected our credentials — clear and re-register on next page load
+        ws_central_reset();
+        return;
+    }
     if ($response && !empty($response['api_key'])) {
         // Server may re-issue key; keep it fresh
         update_option('ws_central_api_key', $response['api_key'], false);
@@ -127,6 +155,10 @@ function ws_central_send_heartbeat($blocking = false) {
         }
 
         $code = wp_remote_retrieve_response_code($result);
+        if ($code === 401) {
+            error_log('[WonderShield Central] Heartbeat 401 — credentials rejected');
+            return false;
+        }
         if ($code < 200 || $code >= 300) {
             error_log('[WonderShield Central] Heartbeat HTTP ' . $code);
             return null;

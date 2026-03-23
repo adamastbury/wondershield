@@ -580,6 +580,28 @@ $ws_assets_url = WS_PLUGIN_URL;
             <p>Security Protection by Wonder Media</p>
         </div>
         <div class="ws-version">v<?php echo WS_VERSION; ?></div>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:10px;flex-shrink:0;">
+            <?php if ($ws_reconnecting): ?>
+                <span style="font-size:12px;color:rgba(0,220,255,0.8);font-family:'Dosis',sans-serif;letter-spacing:0.08em;">Reconnecting&hellip; reload in a moment</span>
+            <?php elseif ($ws_connected): ?>
+                <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(0,255,160,0.85);font-family:'Dosis',sans-serif;letter-spacing:0.08em;">
+                    <span style="width:7px;height:7px;border-radius:50%;background:#00ffa0;box-shadow:0 0 6px #00ffa0;flex-shrink:0;"></span>
+                    Connected to Central
+                </span>
+            <?php else: ?>
+                <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,80,80,0.9);font-family:'Dosis',sans-serif;letter-spacing:0.08em;">
+                    <span style="width:7px;height:7px;border-radius:50%;background:#ff5050;box-shadow:0 0 6px #ff5050;flex-shrink:0;"></span>
+                    Not connected
+                </span>
+            <?php endif; ?>
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                <input type="hidden" name="action" value="ws_reconnect">
+                <?php wp_nonce_field('ws_reconnect'); ?>
+                <button type="submit" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.75);font-size:11px;font-family:'Dosis',sans-serif;letter-spacing:0.1em;text-transform:uppercase;padding:5px 12px;border-radius:6px;cursor:pointer;">
+                    Reconnect
+                </button>
+            </form>
+        </div>
     </div>
 
     <!-- PIPELINE HEADING -on light lavender -->

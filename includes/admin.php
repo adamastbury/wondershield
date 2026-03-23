@@ -51,6 +51,18 @@ add_action('admin_menu', function() {
 });
 
 // ============================================================
+// RECONNECT HANDLER
+// ============================================================
+add_action('admin_post_ws_reconnect', 'ws_handle_reconnect');
+function ws_handle_reconnect() {
+    if (!current_user_can('manage_options')) wp_die('Forbidden');
+    check_admin_referer('ws_reconnect');
+    ws_central_reset();
+    wp_redirect(admin_url('admin.php?page=wondershield&reconnecting=1'));
+    exit;
+}
+
+// ============================================================
 // UNBLOCK HANDLER
 // ============================================================
 add_action('admin_post_ws_unblock', 'ws_handle_unblock');
@@ -155,5 +167,7 @@ function ws_render_page() {
         "SELECT * FROM " . WS_TABLE_LOG . " ORDER BY created_at DESC LIMIT 50"
     );
     $unblocked = isset($_GET['unblocked']);
+    $ws_connected  = !empty(get_option('ws_central_site_id')) && !empty(get_option('ws_central_api_key'));
+    $ws_reconnecting = isset($_GET['reconnecting']);
     include WS_PLUGIN_DIR . 'templates/admin-page.php';
 }
