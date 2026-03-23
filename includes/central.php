@@ -24,7 +24,9 @@ add_filter('cron_schedules', function ($s) {
  * On subsequent loads, do nothing — crons handle the rest.
  */
 add_action('plugins_loaded', 'ws_central_maybe_register', 20);
-function ws_central_maybe_register() {
+function ws_central_maybe_register( $depth = 0 ) {
+    if ( $depth > 1 ) return; // Recursion guard
+
     // Always ensure crons are scheduled, even after an update cleared them
     if (!wp_next_scheduled('ws_central_heartbeat')) {
         wp_schedule_event(time(), 'ws_five_minutes', 'ws_central_heartbeat');
@@ -47,7 +49,7 @@ function ws_central_maybe_register() {
             if ($response === false) {
                 // 401 — stale credentials, re-register immediately
                 ws_central_reset();
-                ws_central_maybe_register();
+                ws_central_maybe_register( $depth + 1 );
             } elseif (is_array($response)) {
                 update_option('ws_central_validated_at', time(), false);
                 if (!empty($response['api_key'])) {
@@ -58,29 +60,29 @@ function ws_central_maybe_register() {
         return;
     }
 
-    // Partial registration (site_id saved but no api_key) — start fresh
-    if ($site_id) {
-        delete_option('ws_central_site_id');
+    // No api_key — either fresh install or after a reset.
+    // If site_id exists, reuse it so the central updates the existing record
+    // rather than inserting a new one (which would conflict on the domain UNIQUE constraint).
+    if (!$site_id) {
+        $site_id = wp_generate_uuid4();
+        update_option('ws_central_site_id', $site_id, false);
     }
-
-    $site_id = wp_generate_uuid4();
-    update_option('ws_central_site_id', $site_id, false);
 
     $response = ws_central_send_heartbeat(true); // blocking, uses REGISTRATION_SECRET
     if ($response && !empty($response['api_key'])) {
         update_option('ws_central_api_key', $response['api_key'], false);
         update_option('ws_central_validated_at', time(), false);
-    } else {
-        // Registration failed — clear site_id so next page load retries
-        delete_option('ws_central_site_id');
     }
+    // On failure, leave site_id in place so the next page load retries
+    // with the same UUID rather than generating a new one each time.
 }
 
 /**
  * Clear all central registration state so the next page load re-registers.
  */
 function ws_central_reset() {
-    delete_option('ws_central_site_id');
+    // Keep site_id so re-registration reuses the same record (avoids domain UNIQUE conflict).
+    // Only clear the api_key so the central re-issues a fresh one.
     delete_option('ws_central_api_key');
     delete_option('ws_central_validated_at');
     delete_option('ws_central_event_queue');
