@@ -145,12 +145,14 @@ add_action('init', function() {
         $secs = max(0, (new DateTime($block->expires_at, new DateTimeZone('UTC')))->getTimestamp() - time());
         ws_block_response('Your IP has been temporarily blocked due to repeated failed login attempts.', $ip, $secs);
     }
-    // Don't count password reset steps as login attempts
+    // Key-gated reset steps are exempt — the token is the protection
     $action = $_REQUEST['action'] ?? '';
-    if (in_array($action, ['lostpassword', 'rp', 'resetpass'], true)) return;
+    if (in_array($action, ['rp', 'resetpass'], true)) return;
     ws_log($ip, 'attempt', $uri, $_SERVER['HTTP_USER_AGENT'] ?? '');
     $attempts = ws_count_recent_attempts($ip, '%wp-login%', WS_ATTEMPT_WINDOW);
-    if ($attempts >= WS_MAX_ATTEMPTS) {
+    // Higher threshold for password reset flow to avoid locking out legitimate users
+    $threshold = ($action === 'lostpassword') ? 10 : WS_MAX_ATTEMPTS;
+    if ($attempts >= $threshold) {
         ws_block_ip($ip, 'wp-login brute force');
         status_header(429);
         ws_block_response('Too many failed login attempts. Your IP has been temporarily blocked.', $ip, WS_LOCKOUT_DURATION);
