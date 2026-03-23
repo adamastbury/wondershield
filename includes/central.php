@@ -25,11 +25,37 @@ add_filter('cron_schedules', function ($s) {
  */
 add_action('plugins_loaded', 'ws_central_maybe_register', 20);
 function ws_central_maybe_register() {
+    // Always ensure crons are scheduled, even after an update cleared them
+    if (!wp_next_scheduled('ws_central_heartbeat')) {
+        wp_schedule_event(time(), 'ws_five_minutes', 'ws_central_heartbeat');
+    }
+    if (!wp_next_scheduled('ws_central_check')) {
+        wp_schedule_event(time(), 'ws_five_minutes', 'ws_central_check');
+    }
+
     $site_id = get_option('ws_central_site_id');
     $api_key = get_option('ws_central_api_key');
 
     if ($site_id && $api_key) {
-        return; // Fully registered
+        // Credentials exist — but validate them if not confirmed recently.
+        // This catches stale credentials after a DB clear without relying on WP cron,
+        // since WP cron is disabled and only fires when Cloudflare pings wp-cron.php,
+        // which only happens for sites already in the central DB.
+        $validated_at = (int) get_option('ws_central_validated_at', 0);
+        if ((time() - $validated_at) > 600) {
+            $response = ws_central_send_heartbeat(true);
+            if ($response === false) {
+                // 401 — stale credentials, re-register immediately
+                ws_central_reset();
+                ws_central_maybe_register();
+            } elseif (is_array($response)) {
+                update_option('ws_central_validated_at', time(), false);
+                if (!empty($response['api_key'])) {
+                    update_option('ws_central_api_key', $response['api_key'], false);
+                }
+            }
+        }
+        return;
     }
 
     // Partial registration (site_id saved but no api_key) — start fresh
@@ -43,18 +69,10 @@ function ws_central_maybe_register() {
     $response = ws_central_send_heartbeat(true); // blocking, uses REGISTRATION_SECRET
     if ($response && !empty($response['api_key'])) {
         update_option('ws_central_api_key', $response['api_key'], false);
+        update_option('ws_central_validated_at', time(), false);
     } else {
         // Registration failed — clear site_id so next page load retries
         delete_option('ws_central_site_id');
-        return;
-    }
-
-    // Schedule crons now (activation hook may have run before central.php existed)
-    if (!wp_next_scheduled('ws_central_heartbeat')) {
-        wp_schedule_event(time(), 'ws_five_minutes', 'ws_central_heartbeat');
-    }
-    if (!wp_next_scheduled('ws_central_check')) {
-        wp_schedule_event(time(), 'ws_five_minutes', 'ws_central_check');
     }
 }
 
@@ -64,6 +82,7 @@ function ws_central_maybe_register() {
 function ws_central_reset() {
     delete_option('ws_central_site_id');
     delete_option('ws_central_api_key');
+    delete_option('ws_central_validated_at');
     delete_option('ws_central_event_queue');
     delete_option('ws_central_last_event_push');
     delete_transient('ws_central_pending_update_report');
@@ -81,7 +100,8 @@ function ws_central_run_heartbeat() {
         ws_central_maybe_register();
         return;
     }
-    if ($response && !empty($response['api_key'])) {
+    update_option('ws_central_validated_at', time(), false);
+    if (!empty($response['api_key'])) {
         // Server may re-issue key; keep it fresh
         update_option('ws_central_api_key', $response['api_key'], false);
     }
