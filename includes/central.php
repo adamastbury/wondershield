@@ -172,8 +172,14 @@ function ws_central_send_heartbeat($blocking = false) {
     ];
 
     // Attach active blocks (for Central blocks management page)
+    // Use gmdate() for UTC comparison — expires_at is stored in UTC (via gmdate in ws_block_ip),
+    // so NOW() would be wrong on servers in non-UTC timezones (e.g. BST).
+    $now_utc = gmdate('Y-m-d H:i:s');
     $active_blocks_rows = $wpdb->get_results(
-        "SELECT ip, reason, blocked_at, expires_at, manual FROM " . WS_TABLE_BLOCKS . " WHERE expires_at > NOW() OR manual = 1",
+        $wpdb->prepare(
+            "SELECT ip, reason, blocked_at, expires_at, manual FROM " . WS_TABLE_BLOCKS . " WHERE expires_at > %s OR manual = 1",
+            $now_utc
+        ),
         ARRAY_A
     );
     if (!empty($active_blocks_rows)) {
@@ -351,8 +357,12 @@ function ws_central_flush_events() {
     update_option('ws_central_event_queue', [], false);
 
     // Include active blocks so Central stays in sync every ~60 seconds
+    $now_utc = gmdate('Y-m-d H:i:s');
     $active_blocks_rows = $wpdb->get_results(
-        "SELECT ip, reason, blocked_at, expires_at, manual FROM " . WS_TABLE_BLOCKS . " WHERE expires_at > NOW() OR manual = 1",
+        $wpdb->prepare(
+            "SELECT ip, reason, blocked_at, expires_at, manual FROM " . WS_TABLE_BLOCKS . " WHERE expires_at > %s OR manual = 1",
+            $now_utc
+        ),
         ARRAY_A
     );
     $active_blocks_detail = array_map(function($row) {
