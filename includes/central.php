@@ -27,11 +27,17 @@ add_action('plugins_loaded', 'ws_central_maybe_register', 20);
 function ws_central_maybe_register( $depth = 0 ) {
     if ( $depth > 1 ) return; // Recursion guard
 
-    // Always ensure crons are scheduled, even after an update cleared them
-    if (!wp_next_scheduled('ws_central_heartbeat')) {
+    // Ensure crons are scheduled and not stuck overdue.
+    // wp_next_scheduled() returns false if missing, or a timestamp if scheduled.
+    // We reschedule if missing OR if the next run is more than 10 minutes overdue.
+    $hb_next = wp_next_scheduled('ws_central_heartbeat');
+    if (!$hb_next || (time() - $hb_next) > 600) {
+        wp_clear_scheduled_hook('ws_central_heartbeat');
         wp_schedule_event(time(), 'ws_five_minutes', 'ws_central_heartbeat');
     }
-    if (!wp_next_scheduled('ws_central_check')) {
+    $chk_next = wp_next_scheduled('ws_central_check');
+    if (!$chk_next || (time() - $chk_next) > 600) {
+        wp_clear_scheduled_hook('ws_central_check');
         wp_schedule_event(time(), 'ws_five_minutes', 'ws_central_check');
     }
 
