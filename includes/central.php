@@ -55,6 +55,14 @@ function ws_central_maybe_register( $depth = 0 ) {
                 if (!empty($response['api_key'])) {
                     update_option('ws_central_api_key', $response['api_key'], false);
                 }
+                // Act on force_update even when triggered from plugins_loaded,
+                // since the cron heartbeat action may not be running (e.g. stuck event).
+                if (!empty($response['force_update']) && $response['force_update'] === true) {
+                    ws_central_force_update(
+                        $response['command_id'] ?? null,
+                        $response['target_version'] ?? null
+                    );
+                }
             }
         }
         return;
