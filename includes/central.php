@@ -140,6 +140,8 @@ function ws_central_run_heartbeat() {
  * @return array|null Decoded response body, or null on failure.
  */
 function ws_central_send_heartbeat($blocking = false) {
+    global $wpdb;
+
     $site_id = get_option('ws_central_site_id');
     if (!$site_id) return null;
 
@@ -168,6 +170,25 @@ function ws_central_send_heartbeat($blocking = false) {
             'active_blocks'  => $stats['active_blocks']  ?? 0,
         ],
     ];
+
+    // Attach active blocks (for Central blocks management page)
+    $active_blocks_rows = $wpdb->get_results(
+        "SELECT ip, reason, blocked_at, expires_at, manual FROM " . WS_TABLE_BLOCKS . " WHERE expires_at > NOW() OR manual = 1",
+        ARRAY_A
+    );
+    if (!empty($active_blocks_rows)) {
+        $body['active_blocks_detail'] = array_map(function($row) {
+            return [
+                'ip'         => $row['ip'],
+                'reason'     => $row['reason'],
+                'blocked_at' => $row['blocked_at'],
+                'expires_at' => $row['expires_at'],
+                'manual'     => (int) $row['manual'],
+            ];
+        }, $active_blocks_rows);
+    } else {
+        $body['active_blocks_detail'] = [];
+    }
 
     // Attach any pending update report
     $pending = get_transient('ws_central_pending_update_report');
@@ -352,13 +373,18 @@ function ws_central_flush_events() {
 }
 
 // ============================================================
-// REST TRIGGER ENDPOINT
-// Called directly by WonderShield Central on update push for instant delivery.
+// REST ENDPOINTS (trigger + unblock)
+// Called directly by WonderShield Central.
 // ============================================================
 add_action('rest_api_init', function() {
     register_rest_route('wondershield/v1', '/trigger', [
         'methods'             => 'POST',
         'callback'            => 'ws_central_handle_trigger',
+        'permission_callback' => '__return_true',
+    ]);
+    register_rest_route('wondershield/v1', '/unblock', [
+        'methods'             => 'POST',
+        'callback'            => 'ws_central_handle_unblock',
         'permission_callback' => '__return_true',
     ]);
 });
@@ -374,6 +400,26 @@ function ws_central_handle_trigger(WP_REST_Request $request) {
 
     ws_central_check_for_update();
     return new WP_REST_Response(['ok' => true], 200);
+}
+
+function ws_central_handle_unblock(WP_REST_Request $request) {
+    $auth    = $request->get_header('Authorization');
+    $token   = preg_replace('/^Bearer\s+/i', '', $auth ?? '');
+    $api_key = get_option('ws_central_api_key');
+
+    if (empty($api_key) || !hash_equals($api_key, $token)) {
+        return new WP_REST_Response(['error' => 'Unauthorized'], 401);
+    }
+
+    $ip = sanitize_text_field($request->get_param('ip') ?? '');
+    if (empty($ip)) {
+        return new WP_REST_Response(['error' => 'Missing ip'], 400);
+    }
+
+    global $wpdb;
+    $wpdb->delete(WS_TABLE_BLOCKS, ['ip' => $ip], ['%s']);
+
+    return new WP_REST_Response(['ok' => true, 'ip' => $ip], 200);
 }
 
 // ============================================================
