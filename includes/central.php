@@ -336,11 +336,12 @@ function ws_central_queue_event($event_type, $ip, $path, $user_agent, $country =
  */
 add_action('shutdown', 'ws_central_flush_events');
 function ws_central_flush_events() {
-    $queue = get_option('ws_central_event_queue', []);
-    if (empty($queue)) return;
+    global $wpdb;
 
     $last_push = (int) get_option('ws_central_last_event_push', 0);
     if ((time() - $last_push) < 60) return;
+
+    $queue = get_option('ws_central_event_queue', []);
 
     $site_id = get_option('ws_central_site_id');
     $api_key = get_option('ws_central_api_key');
@@ -348,6 +349,21 @@ function ws_central_flush_events() {
 
     update_option('ws_central_last_event_push', time(), false);
     update_option('ws_central_event_queue', [], false);
+
+    // Include active blocks so Central stays in sync every ~60 seconds
+    $active_blocks_rows = $wpdb->get_results(
+        "SELECT ip, reason, blocked_at, expires_at, manual FROM " . WS_TABLE_BLOCKS . " WHERE expires_at > NOW() OR manual = 1",
+        ARRAY_A
+    );
+    $active_blocks_detail = array_map(function($row) {
+        return [
+            'ip'         => $row['ip'],
+            'reason'     => $row['reason'],
+            'blocked_at' => $row['blocked_at'],
+            'expires_at' => $row['expires_at'],
+            'manual'     => (int) $row['manual'],
+        ];
+    }, $active_blocks_rows ?: []);
 
     try {
         $result = wp_remote_post(WS_CENTRAL_URL . '/api/event', [
@@ -358,8 +374,9 @@ function ws_central_flush_events() {
                 'Authorization' => 'Bearer ' . $api_key,
             ],
             'body' => wp_json_encode([
-                'site_id' => $site_id,
-                'events'  => $queue,
+                'site_id'              => $site_id,
+                'events'               => $queue,
+                'active_blocks_detail' => $active_blocks_detail,
             ]),
         ]);
 
@@ -387,6 +404,11 @@ add_action('rest_api_init', function() {
         'callback'            => 'ws_central_handle_unblock',
         'permission_callback' => '__return_true',
     ]);
+    register_rest_route('wondershield/v1', '/block', [
+        'methods'             => 'POST',
+        'callback'            => 'ws_central_handle_block',
+        'permission_callback' => '__return_true',
+    ]);
 });
 
 function ws_central_handle_trigger(WP_REST_Request $request) {
@@ -400,6 +422,38 @@ function ws_central_handle_trigger(WP_REST_Request $request) {
 
     ws_central_check_for_update();
     return new WP_REST_Response(['ok' => true], 200);
+}
+
+function ws_central_handle_block(WP_REST_Request $request) {
+    $auth    = $request->get_header('Authorization');
+    $token   = preg_replace('/^Bearer\s+/i', '', $auth ?? '');
+    $api_key = get_option('ws_central_api_key');
+
+    if (empty($api_key) || !hash_equals($api_key, $token)) {
+        return new WP_REST_Response(['error' => 'Unauthorized'], 401);
+    }
+
+    $ip     = sanitize_text_field($request->get_param('ip') ?? '');
+    $reason = sanitize_text_field($request->get_param('reason') ?? 'Manually blocked via Central');
+
+    if (empty($ip)) {
+        return new WP_REST_Response(['error' => 'Missing ip'], 400);
+    }
+
+    global $wpdb;
+    $wpdb->replace(
+        WS_TABLE_BLOCKS,
+        [
+            'ip'         => $ip,
+            'reason'     => $reason,
+            'blocked_at' => current_time('mysql'),
+            'expires_at' => '9999-12-31 23:59:59',
+            'manual'     => 1,
+        ],
+        ['%s', '%s', '%s', '%s', '%d']
+    );
+
+    return new WP_REST_Response(['ok' => true, 'ip' => $ip], 200);
 }
 
 function ws_central_handle_unblock(WP_REST_Request $request) {
