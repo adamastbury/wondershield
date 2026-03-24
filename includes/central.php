@@ -285,8 +285,8 @@ function ws_central_check_for_update() {
 /**
  * Called via do_action('ws_event', $type, $ip, $path, $user_agent) from ws_log().
  */
-add_action('ws_event', 'ws_central_queue_event', 10, 4);
-function ws_central_queue_event($event_type, $ip, $path, $user_agent) {
+add_action('ws_event', 'ws_central_queue_event', 10, 5);
+function ws_central_queue_event($event_type, $ip, $path, $user_agent, $country = '') {
     $allowed = ['blocked', 'login_failed', 'probe_blocked', 'bad_agent_blocked', 'xmlrpc_blocked', 'enum_blocked'];
     if (!in_array($event_type, $allowed, true)) return;
 
@@ -298,6 +298,7 @@ function ws_central_queue_event($event_type, $ip, $path, $user_agent) {
         'ip'         => $ip,
         'path'       => $path,
         'user_agent' => $user_agent,
+        'country'    => $country,
         'created_at' => gmdate('Y-m-d\TH:i:s\Z'),
     ];
 

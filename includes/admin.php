@@ -134,6 +134,12 @@ function ws_get_stats() {
 // ============================================================
 // LOG ROW RENDERER
 // ============================================================
+function ws_country_flag($code) {
+    if (!$code || strlen($code) !== 2) return '';
+    $code = strtoupper($code);
+    return mb_chr(0x1F1E6 + ord($code[0]) - ord('A')) . mb_chr(0x1F1E6 + ord($code[1]) - ord('A'));
+}
+
 function ws_render_log_row($log) {
     $badges = [
         'blocked'          => ['🛡', '#ef4444', '#fee2e2'],
@@ -145,12 +151,15 @@ function ws_render_log_row($log) {
         'bad_agent_blocked'=> ['🤖', '#64748b', '#f1f5f9'],
         'probe_blocked'    => ['🕵', '#f97316', '#fff7ed'],
     ];
-    $badge = $badges[$log->event_type] ?? ['?', '#6b7280', '#f9fafb'];
+    $badge   = $badges[$log->event_type] ?? ['?', '#6b7280', '#f9fafb'];
     $time_ago = human_time_diff(strtotime($log->created_at)) . ' ago';
+    $country  = $log->country ?? '';
+    $flag     = ws_country_flag($country);
     echo '<tr class="ws-log-row">';
     echo '<td><span class="ws-badge" style="background:' . $badge[2] . ';color:' . $badge[1] . '">' . $badge[0] . ' ' . esc_html($log->event_type) . '</span></td>';
     echo '<td class="ws-ip"><code>' . esc_html($log->ip) . '</code></td>';
     echo '<td class="ws-path"><code>' . esc_html($log->path) . '</code></td>';
+    echo '<td style="font-size:13px">' . ($flag ? esc_html($flag . ' ' . $country) : '<span style="color:#9ca3af">—</span>') . '</td>';
     echo '<td class="ws-time" title="' . esc_attr($log->created_at) . '">' . esc_html($time_ago) . '</td>';
     echo '</tr>';
 }

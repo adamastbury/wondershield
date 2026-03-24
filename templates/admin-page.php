@@ -830,6 +830,7 @@ $ws_assets_url = WS_PLUGIN_URL;
                             <th>Event</th>
                             <th>IP</th>
                             <th>Path</th>
+                            <th>Country</th>
                             <th>When</th>
                         </tr>
                     </thead>

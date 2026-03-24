@@ -13,6 +13,7 @@ function ws_activate() {
         `ip` VARCHAR(45) NOT NULL,
         `path` VARCHAR(255) NOT NULL,
         `user_agent` TEXT,
+        `country` VARCHAR(10),
         `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (`id`),
         KEY idx_ip (`ip`),
@@ -110,14 +111,17 @@ function ws_block_ip($ip, $reason = 'brute_force', $manual = 0) {
 }
 function ws_log($ip, $event_type, $path, $user_agent = '') {
     global $wpdb;
+    $cf_country = strtoupper(substr($_SERVER['HTTP_CF_IPCOUNTRY'] ?? '', 0, 10));
+    $country = ($cf_country && $cf_country !== 'XX') ? $cf_country : '';
     $wpdb->insert(WS_TABLE_LOG, [
         'event_type' => $event_type,
         'ip'         => $ip,
         'path'       => substr($path, 0, 255),
         'user_agent' => substr($user_agent, 0, 500),
+        'country'    => $country,
         'created_at' => current_time('mysql'),
-    ], ['%s','%s','%s','%s','%s']);
-    do_action('ws_event', $event_type, $ip, $path, $user_agent);
+    ], ['%s','%s','%s','%s','%s','%s']);
+    do_action('ws_event', $event_type, $ip, $path, $user_agent, $country);
 }
 function ws_send_notification($ip, $reason) {
     $subject = '[WonderShield] IP Blocked: ' . $ip;

@@ -3,14 +3,14 @@
  * Plugin Name: WonderShield
  * Plugin URI: https://wondermedia.co.uk
  * Description: Security hardening and brute force protection by Wonder Media
- * Version: 1.5.29
+ * Version: 1.5.30
  * Author: Wonder Media Ltd
  * Author URI: https://wondermedia.co.uk
  * License: Proprietary
  */
 if (!defined('ABSPATH')) exit;
 
-define('WS_VERSION',         '1.5.29');
+define('WS_VERSION',         '1.5.30');
 define('WS_PLUGIN_DIR',      plugin_dir_path(__FILE__));
 define('WS_PLUGIN_URL',      plugin_dir_url(__FILE__));
 define('WS_TABLE_LOG',       $GLOBALS['wpdb']->prefix . 'wondershield_log');
@@ -34,6 +34,13 @@ $ws_updater->init();
 
 register_activation_hook(__FILE__,   'ws_activate');
 register_deactivation_hook(__FILE__, 'ws_deactivate');
+
+// Add country column to log table if missing (migration for existing installs).
+global $wpdb;
+$col = $wpdb->get_results( "SHOW COLUMNS FROM " . WS_TABLE_LOG . " LIKE 'country'" );
+if ( empty( $col ) ) {
+    $wpdb->query( "ALTER TABLE " . WS_TABLE_LOG . " ADD COLUMN `country` VARCHAR(10) DEFAULT NULL AFTER `user_agent`" );
+}
 
 // Auto-create blocks table if missing.
 delete_option( 'ws_blocks_table_ver' );
