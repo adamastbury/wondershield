@@ -140,6 +140,16 @@ function ws_country_flag($code) {
     return mb_chr(0x1F1E6 + ord($code[0]) - ord('A')) . mb_chr(0x1F1E6 + ord($code[1]) - ord('A'));
 }
 
+function ws_country_name($code) {
+    if (!$code || strlen($code) !== 2) return '';
+    $code = strtoupper($code);
+    if (class_exists('Locale')) {
+        $name = \Locale::getDisplayRegion('-' . $code, 'en');
+        if ($name && $name !== $code) return $name;
+    }
+    return $code;
+}
+
 function ws_render_log_row($log) {
     $badges = [
         'blocked'          => ['🛡', '#ef4444', '#fee2e2'],
@@ -159,7 +169,7 @@ function ws_render_log_row($log) {
     echo '<td><span class="ws-badge" style="background:' . $badge[2] . ';color:' . $badge[1] . '">' . $badge[0] . ' ' . esc_html($log->event_type) . '</span></td>';
     echo '<td class="ws-ip"><code>' . esc_html($log->ip) . '</code></td>';
     echo '<td class="ws-path"><code>' . esc_html($log->path) . '</code></td>';
-    echo '<td style="font-size:13px">' . ($flag ? esc_html($flag . ' ' . $country) : '<span style="color:#9ca3af">—</span>') . '</td>';
+    echo '<td style="font-size:18px;line-height:1">' . ($flag ? '<span title="' . esc_attr(ws_country_name($country)) . '" style="cursor:default">' . esc_html($flag) . '</span>' : '<span style="color:#9ca3af;font-size:13px">—</span>') . '</td>';
     echo '<td class="ws-time" title="' . esc_attr($log->created_at) . '">' . esc_html($time_ago) . '</td>';
     echo '</tr>';
 }
