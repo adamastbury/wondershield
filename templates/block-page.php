@@ -1,3 +1,9 @@
+<?php
+$is_permanent = isset($block) && $block && (
+    (int)($block->manual ?? 0) === 1 ||
+    strpos((string)($block->expires_at ?? ''), '9999') === 0
+);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -247,6 +253,30 @@ h1 {
     line-height: 1.5;
 }
 
+/* Manual review box */
+.manual-wrap {
+    background: rgba(239,68,68,0.06);
+    border: 1px solid rgba(239,68,68,0.18);
+    border-radius: 14px;
+    padding: 18px 20px 16px;
+    margin-bottom: 24px;
+    text-align: left;
+}
+.manual-label {
+    font-family: 'Dosis', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(239,68,68,0.65);
+    margin-bottom: 8px;
+}
+.manual-text {
+    font-size: 13px;
+    color: rgba(255,255,255,0.50);
+    line-height: 1.6;
+}
+
 /* Footer */
 .card-footer {
     font-family: 'Dosis', sans-serif;
@@ -296,7 +326,11 @@ h1 {
         Access Blocked
     </div>
 
+    <?php if ($is_permanent): ?>
+    <h1>You have been blocked</h1>
+    <?php else: ?>
     <h1>Your access has been<br>temporarily restricted</h1>
+    <?php endif; ?>
     <p class="message"><?php echo esc_html($message); ?></p>
 
     <div class="pills">
@@ -312,7 +346,12 @@ h1 {
         </div>
     </div>
 
-    <?php if ($expires_ts > 0): ?>
+    <?php if ($is_permanent): ?>
+    <div class="manual-wrap">
+        <div class="manual-label">Manual review required</div>
+        <div class="manual-text">This block is permanent and will not expire automatically. Please contact the site administrator if you believe this is a mistake.</div>
+    </div>
+    <?php elseif ($expires_ts > 0): ?>
     <div class="countdown-wrap">
         <div class="countdown-label">Access restores in</div>
         <div class="countdown-timer" id="ws-countdown">--:--</div>
@@ -326,7 +365,7 @@ h1 {
 
 </div>
 
-<?php if ($expires_ts > 0): ?>
+<?php if (!$is_permanent && $expires_ts > 0): ?>
 <!-- ws-debug version="<?php echo WS_VERSION; ?>" ip="<?php echo esc_html($ip); ?>" expires_ts="<?php echo $expires_ts; ?>" server_time="<?php echo time(); ?>" remaining="<?php echo ($expires_ts - time()); ?>" expires_at_raw="<?php echo esc_html($block->expires_at ?? 'n/a'); ?>" block_found="<?php echo isset($block) && $block ? 'yes' : 'no'; ?>" blocks_table_count="<?php echo $debug_table_count; ?>" db_error="<?php echo esc_html($debug_last_error ?: 'none'); ?>" create_error="<?php echo esc_html($GLOBALS['ws_create_error'] ?? 'n/a'); ?>" -->
 <script>
 (function() {
