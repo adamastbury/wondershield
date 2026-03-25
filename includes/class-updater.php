@@ -17,7 +17,7 @@ class WonderShield_Updater {
     private $github_response;
 
     const CACHE_KEY = 'wondershield_github_release';
-    const CACHE_TTL = 30;
+    const CACHE_TTL = 3600; // 1 hour — prevents GitHub API rate limiting (60 req/hr unauthenticated)
 
     public function __construct($plugin_file) {
         $this->plugin_file     = $plugin_file;
