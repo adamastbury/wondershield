@@ -314,7 +314,7 @@ function ws_central_check_for_update() {
  */
 add_action('ws_event', 'ws_central_queue_event', 10, 5);
 function ws_central_queue_event($event_type, $ip, $path, $user_agent, $country = '') {
-    $allowed = ['blocked', 'login_failed', 'probe_blocked', 'bad_agent_blocked', 'xmlrpc_blocked', 'enum_blocked'];
+    $allowed = ['attempt', 'blocked', 'login_failed', 'probe_blocked', 'bad_agent_blocked', 'xmlrpc_blocked', 'enum_blocked'];
     if (!in_array($event_type, $allowed, true)) return;
 
     $queue = get_option('ws_central_event_queue', []);
