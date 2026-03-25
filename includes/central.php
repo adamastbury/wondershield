@@ -404,6 +404,11 @@ function ws_central_flush_events() {
 // Called directly by WonderShield Central.
 // ============================================================
 add_action('rest_api_init', function() {
+    register_rest_route('wondershield/v1', '/health', [
+        'methods'             => 'GET',
+        'callback'            => 'ws_central_health_check',
+        'permission_callback' => '__return_true',
+    ]);
     register_rest_route('wondershield/v1', '/trigger', [
         'methods'             => 'POST',
         'callback'            => 'ws_central_handle_trigger',
@@ -420,6 +425,12 @@ add_action('rest_api_init', function() {
         'permission_callback' => '__return_true',
     ]);
 });
+
+function ws_central_health_check() {
+    global $wpdb;
+    $ok = $wpdb->get_var("SELECT 1") === '1';
+    return new WP_REST_Response(['ok' => $ok], $ok ? 200 : 503);
+}
 
 function ws_central_handle_trigger(WP_REST_Request $request) {
     $auth    = $request->get_header('Authorization');
