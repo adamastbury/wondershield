@@ -353,7 +353,9 @@ function ws_central_flush_events() {
     $api_key = get_option('ws_central_api_key');
     if (!$site_id || !$api_key) return;
 
+    // Advance rate-limit timer now so concurrent requests don't double-send.
     update_option('ws_central_last_event_push', time(), false);
+    // Clear queue optimistically; restored below if the push fails.
     update_option('ws_central_event_queue', [], false);
 
     // Include active blocks so Central stays in sync every ~60 seconds
@@ -376,9 +378,12 @@ function ws_central_flush_events() {
     }, $active_blocks_rows ?: []);
 
     try {
+        // Use blocking:true so we can detect failures and restore the queue.
+        // The shutdown hook fires after the browser response is already sent,
+        // so the 5-second timeout does not affect the user-visible page load.
         $result = wp_remote_post(WS_CENTRAL_URL . '/api/event', [
-            'timeout'  => 10,
-            'blocking' => false,
+            'timeout'  => 5,
+            'blocking' => true,
             'headers'  => [
                 'Content-Type'  => 'application/json',
                 'Authorization' => 'Bearer ' . $api_key,
@@ -390,8 +395,22 @@ function ws_central_flush_events() {
             ]),
         ]);
 
-        if (is_wp_error($result)) {
-            error_log('[WonderShield Central] Event push error: ' . $result->get_error_message());
+        $failed = is_wp_error($result);
+        $http_code = $failed ? 0 : (int) wp_remote_retrieve_response_code($result);
+
+        if ($failed || $http_code >= 400) {
+            $err_msg = $failed ? $result->get_error_message() : "HTTP $http_code";
+            error_log('[WonderShield Central] Event push failed (' . $err_msg . ') — restoring queue for retry');
+
+            // Restore the queue so events are not permanently lost.
+            // Merge with anything queued since we cleared it above.
+            $current = get_option('ws_central_event_queue', []);
+            if (!is_array($current)) $current = [];
+            $restored = array_merge($queue, $current);
+            if (count($restored) > 50) $restored = array_slice($restored, -50);
+            update_option('ws_central_event_queue', $restored, false);
+            // Reset timer so the retry can fire on the next request
+            update_option('ws_central_last_event_push', 0, false);
         }
 
     } catch (\Throwable $e) {
