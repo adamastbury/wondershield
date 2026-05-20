@@ -147,6 +147,9 @@ add_action('init', function() {
 // PROTECTION: WP-LOGIN + WP-ADMIN RATE LIMITING
 // ============================================================
 // wp-login.php: runs early at init priority 1
+// Only enforces existing blocks. The actual rate limit lives in the
+// wp_login_failed hook below, which counts genuine failed login POSTs —
+// not every page view — so legitimate admin testing doesn't trip it.
 add_action('init', function() {
     $uri = $_SERVER['REQUEST_URI'] ?? '';
     if (strpos($uri, 'wp-login.php') === false) return;
@@ -157,18 +160,6 @@ add_action('init', function() {
         status_header(403);
         $secs = max(0, (new DateTime($block->expires_at, new DateTimeZone('UTC')))->getTimestamp() - time());
         ws_block_response('Your IP has been temporarily blocked due to repeated failed login attempts.', $ip, $secs);
-    }
-    // Key-gated reset steps are exempt — the token is the protection
-    $action = $_REQUEST['action'] ?? '';
-    if (in_array($action, ['rp', 'resetpass'], true)) return;
-    ws_log($ip, 'attempt', $uri, $_SERVER['HTTP_USER_AGENT'] ?? '');
-    $attempts = ws_count_recent_attempts($ip, '%wp-login%', WS_ATTEMPT_WINDOW);
-    // Higher threshold for password reset flow to avoid locking out legitimate users
-    $threshold = ($action === 'lostpassword') ? 10 : WS_MAX_ATTEMPTS;
-    if ($attempts >= $threshold) {
-        ws_block_ip($ip, 'wp-login brute force');
-        status_header(429);
-        ws_block_response('Too many failed login attempts. Your IP has been temporarily blocked.', $ip, WS_LOCKOUT_DURATION);
     }
 }, 1);
 // wp-admin: skip logged-in users entirely
@@ -199,8 +190,8 @@ add_action('wp_login_failed', function($username) {
     $ip = ws_get_ip();
     ws_log($ip, 'login_failed', '/wp-login.php', $_SERVER['HTTP_USER_AGENT'] ?? '');
     if (ws_is_blocked($ip)) return;
-    $attempts = ws_count_recent_attempts($ip, '%wp-login%', WS_ATTEMPT_WINDOW);
-    if ($attempts >= WS_MAX_ATTEMPTS) {
+    $failed = ws_count_recent_events($ip, 'login_failed', WS_ATTEMPT_WINDOW);
+    if ($failed >= WS_MAX_ATTEMPTS) {
         ws_block_ip($ip, 'failed login threshold');
     }
 });
