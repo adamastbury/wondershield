@@ -51,17 +51,55 @@ add_action('admin_menu', function() {
 });
 
 // ============================================================
-// RECONNECT HANDLER
+// RECONNECT HANDLER (re-validate the stored API key)
 // ============================================================
 add_action('admin_post_ws_reconnect', 'ws_handle_reconnect');
 function ws_handle_reconnect() {
     if (!current_user_can('manage_options')) wp_die('Forbidden');
     check_admin_referer('ws_reconnect');
     ws_central_reset();
-    // Re-register synchronously right here — no page-load tricks needed.
+    // Re-validate the stored key synchronously right here.
     ws_central_maybe_register();
     wp_redirect(admin_url('admin.php?page=wondershield'));
     exit;
+}
+
+// ============================================================
+// SAVE API KEY HANDLER
+// ============================================================
+add_action('admin_post_ws_save_api_key', 'ws_handle_save_api_key');
+function ws_handle_save_api_key() {
+    if (!current_user_can('manage_options')) wp_die('Forbidden');
+    check_admin_referer('ws_save_api_key');
+
+    $key = sanitize_text_field(wp_unslash($_POST['ws_api_key'] ?? ''));
+
+    if ($key !== '') {
+        // Connect / re-key: store the pasted key and re-learn our canonical site_id.
+        update_option('ws_central_api_key', $key, false);
+        delete_option('ws_central_site_id');       // re-learned from Central for this key
+        delete_option('ws_central_validated_at');  // force an immediate fresh validation
+        delete_option('ws_central_last_error');
+        ws_central_maybe_register();               // validates the key + learns site_id now
+    } else {
+        // Blank submit = disconnect this site from Central.
+        delete_option('ws_central_api_key');
+        delete_option('ws_central_site_id');
+        delete_option('ws_central_validated_at');
+        delete_option('ws_central_last_error');
+    }
+
+    wp_redirect(admin_url('admin.php?page=wondershield'));
+    exit;
+}
+
+/**
+ * Mask an API key for display (never re-emit the full key to the page).
+ */
+function ws_mask_key($k) {
+    $len = strlen($k);
+    if ($len <= 10) return str_repeat('•', max($len, 4));
+    return substr($k, 0, 6) . str_repeat('•', 8) . substr($k, -4);
 }
 
 // ============================================================
@@ -192,5 +230,7 @@ function ws_render_page() {
     $ws_connected      = !empty(get_option('ws_central_site_id')) && !empty(get_option('ws_central_api_key'));
     $ws_reconnecting   = false;
     $ws_central_error  = get_option('ws_central_last_error', '');
+    $ws_has_key        = !empty(get_option('ws_central_api_key'));
+    $ws_key_masked     = $ws_has_key ? ws_mask_key(get_option('ws_central_api_key')) : '';
     include WS_PLUGIN_DIR . 'templates/admin-page.php';
 }

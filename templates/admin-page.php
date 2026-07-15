@@ -609,6 +609,22 @@ $ws_assets_url = WS_PLUGIN_URL;
     </div>
     <?php endif; ?>
 
+    <!-- CENTRAL API KEY -->
+    <div style="background:rgba(86,0,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);padding:12px 36px;">
+        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <input type="hidden" name="action" value="ws_save_api_key">
+            <?php wp_nonce_field('ws_save_api_key'); ?>
+            <label for="ws_api_key" style="font-size:11px;font-family:'Dosis',sans-serif;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.55);flex-shrink:0;">WonderShield API Key</label>
+            <input type="password" id="ws_api_key" name="ws_api_key" autocomplete="off" spellcheck="false"
+                placeholder="<?php echo $ws_has_key ? esc_attr($ws_key_masked . '  — saved (paste a new key to replace)') : 'ws_sk_… (paste the key issued in WonderShield Central)'; ?>"
+                style="flex:1;min-width:280px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:12px;font-family:monospace;padding:7px 12px;border-radius:6px;">
+            <button type="submit" style="background:#5600ff;border:1px solid #5600ff;color:#fff;font-size:11px;font-family:'Dosis',sans-serif;letter-spacing:0.1em;text-transform:uppercase;padding:7px 16px;border-radius:6px;cursor:pointer;flex-shrink:0;">
+                <?php echo $ws_has_key ? 'Update Key' : 'Connect'; ?>
+            </button>
+            <span style="font-size:10px;font-family:'Dosis',sans-serif;color:rgba(255,255,255,0.35);flex-shrink:0;">Get a key from WonderShield Central → Sites → Connect Plugin</span>
+        </form>
+    </div>
+
     <!-- PIPELINE HEADING -on light lavender -->
     <div class="ws-pipeline-intro">
         <div class="ws-pipeline-intro-eyebrow">Defence in Depth</div>

@@ -1,8 +1,10 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
-define('WS_CENTRAL_URL',                 'https://shield.wondermedia.co.uk');
-define('WS_CENTRAL_REGISTRATION_SECRET', '226e5d930720b2e01311ae8d18ecb572f2284a5d59f2ff43930cebcbd5f463df');
+define('WS_CENTRAL_URL', 'https://shield.wondermedia.co.uk');
+// No shared registration secret. Each site is connected by pasting a per-site API
+// key (issued from WonderShield Central) into Settings → API Key. The key is the
+// sole credential; the plugin does nothing until one is entered.
 
 // ============================================================
 // CRON INTERVAL
@@ -19,14 +21,15 @@ add_filter('cron_schedules', function ($s) {
 // ============================================================
 
 /**
- * On first load (no site_id stored), generate a UUID, register with Central
- * using the REGISTRATION_SECRET, save the returned api_key, then schedule crons.
- * On subsequent loads, do nothing — crons handle the rest.
+ * Boot: keep the crons scheduled, and — if an API key has been entered — validate
+ * it against Central and learn our canonical site_id from the response.
+ *
+ * There is NO self-registration. With no API key the plugin stays inert until an
+ * admin pastes a key on Settings → API Key. A rejected key surfaces an error but is
+ * never wiped automatically (it is the admin's credential, not a self-issued one).
  */
 add_action('plugins_loaded', 'ws_central_maybe_register', 20);
-function ws_central_maybe_register( $depth = 0 ) {
-    if ( $depth > 1 ) return; // Recursion guard
-
+function ws_central_maybe_register() {
     // Ensure crons are scheduled and not stuck overdue.
     // wp_next_scheduled() returns false if missing, or a timestamp if scheduled.
     // We reschedule if missing OR if the next run is more than 10 minutes overdue.
@@ -41,70 +44,43 @@ function ws_central_maybe_register( $depth = 0 ) {
         wp_schedule_event(time(), 'ws_five_minutes', 'ws_central_check');
     }
 
-    $site_id = get_option('ws_central_site_id');
     $api_key = get_option('ws_central_api_key');
-
-    if ($site_id && $api_key) {
-        // Credentials exist — but validate them if not confirmed recently.
-        // This catches stale credentials after a DB clear without relying on WP cron,
-        // since WP cron is disabled and only fires when Cloudflare pings wp-cron.php,
-        // which only happens for sites already in the central DB.
-        $validated_at = (int) get_option('ws_central_validated_at', 0);
-        if ((time() - $validated_at) > 600) {
-            $response = ws_central_send_heartbeat(true);
-            if ($response === false) {
-                // 401 — stale credentials, re-register immediately
-                ws_central_reset();
-                ws_central_maybe_register( $depth + 1 );
-            } elseif (is_array($response)) {
-                update_option('ws_central_validated_at', time(), false);
-                if (!empty($response['api_key'])) {
-                    update_option('ws_central_api_key', $response['api_key'], false);
-                }
-                // Act on force_update even when triggered from plugins_loaded,
-                // since the cron heartbeat action may not be running (e.g. stuck event).
-                if (!empty($response['force_update']) && $response['force_update'] === true) {
-                    ws_central_force_update(
-                        $response['command_id'] ?? null,
-                        $response['target_version'] ?? null
-                    );
-                }
-            }
-        }
+    if (empty($api_key)) {
+        // Not configured — no key means no calls to Central.
         return;
     }
 
-    // No api_key — either fresh install or after a reset.
-    // If site_id exists, reuse it so the central updates the existing record
-    // rather than inserting a new one (which would conflict on the domain UNIQUE constraint).
-    if (!$site_id) {
-        $site_id = wp_generate_uuid4();
-        update_option('ws_central_site_id', $site_id, false);
-    }
-
-    $response = ws_central_send_heartbeat(true); // blocking, uses REGISTRATION_SECRET
-    if ($response && !empty($response['api_key'])) {
-        update_option('ws_central_api_key', $response['api_key'], false);
-        update_option('ws_central_validated_at', time(), false);
-        // Central may return a corrected site_id if our UUID drifted (domain conflict resolved)
-        if (!empty($response['site_id'])) {
-            update_option('ws_central_site_id', $response['site_id'], false);
+    // We have a key. Validate it (and learn our site_id) if we don't have a site_id
+    // yet, or haven't confirmed the connection in the last 10 minutes.
+    $site_id      = get_option('ws_central_site_id');
+    $validated_at = (int) get_option('ws_central_validated_at', 0);
+    if (empty($site_id) || (time() - $validated_at) > 600) {
+        $response = ws_central_send_heartbeat(true);
+        if (is_array($response)) {
+            update_option('ws_central_validated_at', time(), false);
+            // Central returns our canonical site_id; adopt it (drives the /check + /event calls).
+            if (!empty($response['site_id'])) {
+                update_option('ws_central_site_id', $response['site_id'], false);
+            }
+            // Act on force_update here too, since the cron heartbeat may not be running.
+            if (!empty($response['force_update']) && $response['force_update'] === true) {
+                ws_central_force_update(
+                    $response['command_id'] ?? null,
+                    $response['target_version'] ?? null
+                );
+            }
         }
+        // On false (401 — bad key) or null (network) the error is already recorded in
+        // ws_central_last_error; we leave the key untouched so the admin can correct it.
     }
-    // On failure, leave site_id in place so the next page load retries
-    // with the same UUID rather than generating a new one each time.
 }
 
 /**
- * Clear all central registration state so the next page load re-registers.
+ * Clear the connection's validation state so the stored key is re-checked on the
+ * next load. Does NOT delete the api_key — that is entered/managed by the admin.
  */
 function ws_central_reset() {
-    // Keep site_id so re-registration reuses the same record (avoids domain UNIQUE conflict).
-    // Only clear the api_key so the central re-issues a fresh one.
-    delete_option('ws_central_api_key');
     delete_option('ws_central_validated_at');
-    delete_option('ws_central_event_queue');
-    delete_option('ws_central_last_event_push');
     delete_transient('ws_central_pending_update_report');
 }
 
@@ -114,18 +90,17 @@ function ws_central_reset() {
 add_action('ws_central_heartbeat', 'ws_central_run_heartbeat');
 function ws_central_run_heartbeat() {
     $response = ws_central_send_heartbeat(true); // blocking so we can detect auth failures
-    if ($response === false) {
-        // Central rejected our credentials — reset and re-register immediately
-        ws_central_reset();
-        ws_central_maybe_register();
+    if (!is_array($response)) {
+        // false (401 — invalid key) or null (network/error). The error is recorded in
+        // ws_central_last_error; never wipe the admin-entered key automatically.
         return;
     }
     update_option('ws_central_validated_at', time(), false);
-    if (!empty($response['api_key'])) {
-        // Server may re-issue key; keep it fresh
-        update_option('ws_central_api_key', $response['api_key'], false);
+    // Learn/confirm our canonical site_id from Central.
+    if (!empty($response['site_id'])) {
+        update_option('ws_central_site_id', $response['site_id'], false);
     }
-    if ($response && !empty($response['force_update']) && $response['force_update'] === true) {
+    if (!empty($response['force_update']) && $response['force_update'] === true) {
         ws_central_force_update(
             $response['command_id'] ?? null,
             $response['target_version'] ?? null
@@ -142,17 +117,18 @@ function ws_central_run_heartbeat() {
 function ws_central_send_heartbeat($blocking = false) {
     global $wpdb;
 
-    $site_id = get_option('ws_central_site_id');
-    if (!$site_id) return null;
+    $api_key = get_option('ws_central_api_key');
+    if (empty($api_key)) return null; // no key, no heartbeat
+    $token = $api_key;
 
-    $api_key  = get_option('ws_central_api_key');
-    $is_first = empty($api_key);
-    $token    = $is_first ? WS_CENTRAL_REGISTRATION_SECRET : $api_key;
+    // site_id may be empty on the very first heartbeat after a key is pasted;
+    // Central identifies us by the key and returns our canonical site_id.
+    $site_id = get_option('ws_central_site_id');
 
     $stats = function_exists('ws_get_stats') ? ws_get_stats() : [];
 
     $body = [
-        'site_id'        => $site_id,
+        'site_id'        => $site_id ?: '',
         'domain'         => parse_url(home_url(), PHP_URL_HOST),
         'site_url'       => home_url(),
         'site_name'      => get_bloginfo('name'),
@@ -226,8 +202,8 @@ function ws_central_send_heartbeat($blocking = false) {
 
         $code = wp_remote_retrieve_response_code($result);
         if ($code === 401) {
-            $msg = 'HTTP 401 — credentials rejected (secret mismatch or invalid api_key)';
-            error_log('[WonderShield Central] Heartbeat 401 — credentials rejected');
+            $msg = 'HTTP 401 — API key rejected. Check the key on Settings → API Key.';
+            error_log('[WonderShield Central] Heartbeat 401 — API key rejected');
             update_option('ws_central_last_error', $msg, false);
             return false;
         }
