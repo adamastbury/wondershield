@@ -421,7 +421,16 @@ add_action('rest_api_init', function() {
     ]);
 });
 
-function ws_central_health_check() {
+function ws_central_health_check(WP_REST_Request $request) {
+    // Require the per-site API key, same as /trigger, /block, /unblock — no longer
+    // an unauthenticated liveness/DB-status leak.
+    $auth    = $request->get_header('Authorization');
+    $token   = preg_replace('/^Bearer\s+/i', '', $auth ?? '');
+    $api_key = get_option('ws_central_api_key');
+    if (empty($api_key) || !hash_equals($api_key, $token)) {
+        return new WP_REST_Response(['error' => 'Unauthorized'], 401);
+    }
+
     global $wpdb;
     $ok = $wpdb->get_var("SELECT 1") === '1';
     return new WP_REST_Response(['ok' => $ok], $ok ? 200 : 503);
