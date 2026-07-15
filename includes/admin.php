@@ -143,19 +143,26 @@ add_action('wp_ajax_ws_load_logs', function() {
 function ws_get_stats() {
     global $wpdb;
     $table = WS_TABLE_LOG;
+    // created_at / expires_at are stored in UTC (gmdate). Compare against UTC cutoffs,
+    // not MySQL NOW()/DATE_SUB (server-local) — otherwise counts and the active-block
+    // total are off by the server's UTC offset (e.g. wrong all summer under BST).
+    $now_utc = gmdate('Y-m-d H:i:s');
+    $d1  = gmdate('Y-m-d H:i:s', time() - DAY_IN_SECONDS);
+    $d7  = gmdate('Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS);
+    $d30 = gmdate('Y-m-d H:i:s', time() - 30 * DAY_IN_SECONDS);
     $stats = [];
-    $stats['blocked_24h'] = (int)$wpdb->get_var(
-        "SELECT COUNT(DISTINCT ip) FROM $table WHERE event_type='blocked' AND created_at > DATE_SUB(NOW(), INTERVAL 1 DAY)"
-    );
-    $stats['blocked_7d'] = (int)$wpdb->get_var(
-        "SELECT COUNT(DISTINCT ip) FROM $table WHERE event_type='blocked' AND created_at > DATE_SUB(NOW(), INTERVAL 7 DAY)"
-    );
-    $stats['blocked_30d'] = (int)$wpdb->get_var(
-        "SELECT COUNT(DISTINCT ip) FROM $table WHERE event_type='blocked' AND created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)"
-    );
-    $stats['attempts_24h'] = (int)$wpdb->get_var(
-        "SELECT COUNT(*) FROM $table WHERE event_type='attempt' AND created_at > DATE_SUB(NOW(), INTERVAL 1 DAY)"
-    );
+    $stats['blocked_24h'] = (int)$wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(DISTINCT ip) FROM $table WHERE event_type='blocked' AND created_at > %s", $d1
+    ));
+    $stats['blocked_7d'] = (int)$wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(DISTINCT ip) FROM $table WHERE event_type='blocked' AND created_at > %s", $d7
+    ));
+    $stats['blocked_30d'] = (int)$wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(DISTINCT ip) FROM $table WHERE event_type='blocked' AND created_at > %s", $d30
+    ));
+    $stats['attempts_24h'] = (int)$wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(*) FROM $table WHERE event_type='attempt' AND created_at > %s", $d1
+    ));
     $stats['xmlrpc_blocked'] = (int)$wpdb->get_var(
         "SELECT COUNT(*) FROM $table WHERE event_type='xmlrpc_blocked'"
     );
@@ -163,9 +170,9 @@ function ws_get_stats() {
         "SELECT COUNT(*) FROM $table WHERE event_type='probe_blocked'"
     );
     $stats['total_events'] = (int)$wpdb->get_var("SELECT COUNT(*) FROM $table");
-    $stats['active_blocks'] = (int)$wpdb->get_var(
-        "SELECT COUNT(*) FROM " . WS_TABLE_BLOCKS . " WHERE expires_at > NOW()"
-    );
+    $stats['active_blocks'] = (int)$wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(*) FROM " . WS_TABLE_BLOCKS . " WHERE expires_at > %s", $now_utc
+    ));
     return $stats;
 }
 
@@ -200,7 +207,7 @@ function ws_render_log_row($log) {
         'probe_blocked'    => ['🕵', '#f97316', '#fff7ed'],
     ];
     $badge   = $badges[$log->event_type] ?? ['?', '#6b7280', '#f9fafb'];
-    $time_ago = human_time_diff(strtotime($log->created_at)) . ' ago';
+    $time_ago = human_time_diff(strtotime($log->created_at . ' UTC')) . ' ago';
     $country  = $log->country ?? '';
     $flag     = ws_country_flag($country);
     echo '<tr class="ws-log-row">';
@@ -220,9 +227,12 @@ function ws_render_page() {
     if (!current_user_can('manage_options')) return;
 
     $stats = ws_get_stats();
-    $active_blocks = $wpdb->get_results(
-        "SELECT * FROM " . WS_TABLE_BLOCKS . " WHERE expires_at > NOW() ORDER BY blocked_at DESC"
-    );
+    // UTC comparison — expires_at is stored via gmdate; MySQL NOW() (server-local) hid
+    // live blocks for their whole life under BST.
+    $active_blocks = $wpdb->get_results($wpdb->prepare(
+        "SELECT * FROM " . WS_TABLE_BLOCKS . " WHERE expires_at > %s ORDER BY blocked_at DESC",
+        gmdate('Y-m-d H:i:s')
+    ));
     $logs = $wpdb->get_results(
         "SELECT * FROM " . WS_TABLE_LOG . " ORDER BY created_at DESC LIMIT 50"
     );

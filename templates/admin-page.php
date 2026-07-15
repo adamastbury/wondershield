@@ -767,8 +767,8 @@ $ws_assets_url = WS_PLUGIN_URL;
                     <tr>
                         <td><code><?php echo esc_html($block->ip); ?></code></td>
                         <td><span class="ws-badge" style="background:#fff0f0;color:#dc2626;"><?php echo esc_html($block->reason); ?></span></td>
-                        <td style="color:#a094c8;font-size:12px;"><?php echo esc_html(human_time_diff(strtotime($block->blocked_at)) . ' ago'); ?></td>
-                        <td style="color:#a094c8;font-size:12px;"><?php echo esc_html(human_time_diff(strtotime($block->expires_at))); ?></td>
+                        <td style="color:#a094c8;font-size:12px;"><?php echo esc_html(human_time_diff(strtotime($block->blocked_at . ' UTC')) . ' ago'); ?></td>
+                        <td style="color:#a094c8;font-size:12px;"><?php echo esc_html(human_time_diff(strtotime($block->expires_at . ' UTC'))); ?></td>
                         <td>
                             <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" style="margin:0;">
                                 <?php wp_nonce_field('ws_unblock'); ?>

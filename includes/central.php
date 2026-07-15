@@ -62,6 +62,7 @@ function ws_central_maybe_register() {
             if (!empty($response['site_id'])) {
                 update_option('ws_central_site_id', $response['site_id'], false);
             }
+            ws_central_apply_block_ops($response);
             // Act on force_update here too, since the cron heartbeat may not be running.
             if (!empty($response['force_update']) && $response['force_update'] === true) {
                 ws_central_force_update(
@@ -84,6 +85,43 @@ function ws_central_reset() {
     delete_transient('ws_central_pending_update_report');
 }
 
+/**
+ * Apply cross-site block reconciliation ops returned by Central in a heartbeat
+ * response. Central diffs its desired global block set against what we reported and
+ * tells us exactly which IPs to add (manual, permanent) or remove. This is what
+ * makes global blocks self-healing: if we were offline when Central pushed a block,
+ * we converge here on our next check-in.
+ */
+function ws_central_apply_block_ops($response) {
+    if (empty($response['block_ops']) || !is_array($response['block_ops'])) return;
+    global $wpdb;
+    $ops = $response['block_ops'];
+
+    if (!empty($ops['add']) && is_array($ops['add'])) {
+        $now = gmdate('Y-m-d H:i:s');
+        foreach ($ops['add'] as $b) {
+            $ip = isset($b['ip']) ? sanitize_text_field($b['ip']) : '';
+            if ($ip === '' || !filter_var(explode('/', $ip)[0], FILTER_VALIDATE_IP)) continue;
+            $reason = isset($b['reason']) ? sanitize_text_field($b['reason']) : 'Blocked via Central';
+            $wpdb->replace(WS_TABLE_BLOCKS, [
+                'ip'         => $ip,
+                'reason'     => $reason,
+                'blocked_at' => $now,
+                'expires_at' => '9999-12-31 23:59:59',
+                'manual'     => 1,
+            ], ['%s', '%s', '%s', '%s', '%d']);
+        }
+    }
+
+    if (!empty($ops['remove']) && is_array($ops['remove'])) {
+        foreach ($ops['remove'] as $ip) {
+            $ip = sanitize_text_field($ip);
+            if ($ip === '') continue;
+            $wpdb->delete(WS_TABLE_BLOCKS, ['ip' => $ip], ['%s']);
+        }
+    }
+}
+
 // ============================================================
 // HEARTBEAT CRON
 // ============================================================
@@ -100,6 +138,7 @@ function ws_central_run_heartbeat() {
     if (!empty($response['site_id'])) {
         update_option('ws_central_site_id', $response['site_id'], false);
     }
+    ws_central_apply_block_ops($response);
     if (!empty($response['force_update']) && $response['force_update'] === true) {
         ws_central_force_update(
             $response['command_id'] ?? null,
@@ -391,6 +430,14 @@ function ws_central_flush_events() {
 
     } catch (\Throwable $e) {
         error_log('[WonderShield Central] Event push exception: ' . $e->getMessage());
+        // The queue was cleared optimistically before the POST — restore it so a
+        // transient exception doesn't silently drop up to 50 events (incl. 'blocked').
+        $current = get_option('ws_central_event_queue', []);
+        if (!is_array($current)) $current = [];
+        $restored = array_merge($queue, $current);
+        if (count($restored) > 50) $restored = array_slice($restored, -50);
+        update_option('ws_central_event_queue', $restored, false);
+        update_option('ws_central_last_event_push', 0, false);
     }
 }
 
@@ -471,7 +518,7 @@ function ws_central_handle_block(WP_REST_Request $request) {
         [
             'ip'         => $ip,
             'reason'     => $reason,
-            'blocked_at' => current_time('mysql'),
+            'blocked_at' => gmdate('Y-m-d H:i:s'), // UTC — consistent with ws_block_ip and the read queries
             'expires_at' => '9999-12-31 23:59:59',
             'manual'     => 1,
         ],

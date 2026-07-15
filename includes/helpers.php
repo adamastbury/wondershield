@@ -66,7 +66,12 @@ function ws_run_cleanup() {
             $wpdb->query("DELETE FROM " . WS_TABLE_LOG . " WHERE id < $keep_id");
         }
     }
-    $wpdb->query("DELETE FROM " . WS_TABLE_BLOCKS . " WHERE expires_at < NOW() AND `manual` = 0");
+    // expires_at is stored in UTC (gmdate); compare against UTC, not MySQL NOW() (server-local),
+    // or blocks get deleted up to an hour early during BST.
+    $wpdb->query($wpdb->prepare(
+        "DELETE FROM " . WS_TABLE_BLOCKS . " WHERE expires_at < %s AND `manual` = 0",
+        gmdate('Y-m-d H:i:s')
+    ));
 }
 
 // ============================================================
@@ -119,7 +124,9 @@ function ws_log($ip, $event_type, $path, $user_agent = '') {
         'path'       => substr($path, 0, 255),
         'user_agent' => substr($user_agent, 0, 500),
         'country'    => $country,
-        'created_at' => current_time('mysql'),
+        // Store UTC so it matches ws_count_recent_*() windows (which use date()/time() = UTC)
+        // and the admin stat queries. Mixing local current_time() here skewed both.
+        'created_at' => gmdate('Y-m-d H:i:s'),
     ], ['%s','%s','%s','%s','%s','%s']);
     do_action('ws_event', $event_type, $ip, $path, $user_agent, $country);
 }
