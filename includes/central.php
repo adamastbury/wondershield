@@ -192,7 +192,7 @@ function ws_central_send_heartbeat($blocking = false) {
     $now_utc = gmdate('Y-m-d H:i:s');
     $active_blocks_rows = $wpdb->get_results(
         $wpdb->prepare(
-            "SELECT ip, reason, blocked_at, expires_at, manual FROM " . WS_TABLE_BLOCKS . " WHERE expires_at > %s OR manual = 1",
+            "SELECT ip, reason, blocked_at, expires_at, `manual` FROM " . WS_TABLE_BLOCKS . " WHERE expires_at > %s OR `manual` = 1",
             $now_utc
         ),
         ARRAY_A
@@ -377,7 +377,7 @@ function ws_central_flush_events() {
     $now_utc = gmdate('Y-m-d H:i:s');
     $active_blocks_rows = $wpdb->get_results(
         $wpdb->prepare(
-            "SELECT ip, reason, blocked_at, expires_at, manual FROM " . WS_TABLE_BLOCKS . " WHERE expires_at > %s OR manual = 1",
+            "SELECT ip, reason, blocked_at, expires_at, `manual` FROM " . WS_TABLE_BLOCKS . " WHERE expires_at > %s OR `manual` = 1",
             $now_utc
         ),
         ARRAY_A
